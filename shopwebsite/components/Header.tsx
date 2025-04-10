@@ -6,17 +6,22 @@ import { ShoppingCart, UserCircle, Home, LogOut, Menu, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function Header() {
+    const [mounted, setMounted] = useState(false);
     const [user, setUser] = useState<{ name: string } | null>(null);
     const [isMenuOpen, setIsMenuOpen] = useState(false);  // Trạng thái của menu hamburger
     const router = useRouter();
 
     useEffect(() => {
+        setMounted(true);
         const storedUser = localStorage.getItem("user");
         if (storedUser) {
             setUser(JSON.parse(storedUser));
         }
     }, []);
-
+    
+    if (!mounted) {
+        return null;
+    }
     const handleLogout = () => {
         localStorage.removeItem("user");
         setUser(null);

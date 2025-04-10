@@ -2,7 +2,7 @@
     "users": [
         {
             "id": 1,
-            "username": "admin",
+            "username": "admin@shop.com",
             "password": "admin",
             "name": "Administrator"
         },

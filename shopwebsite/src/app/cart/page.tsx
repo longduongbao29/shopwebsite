@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Header from "@/components/Header";
 import { ShoppingCart, Trash2 } from "lucide-react"; // Thêm icon thùng rác
+import Link from "next/link";
 
 type Product = {
     id: number;
@@ -13,14 +13,18 @@ type Product = {
 };
 
 export default function CartPage() {
+    const [mounted, setMounted] = useState(false);
     const [cart, setCart] = useState<Product[]>([]);
 
     // Đọc giỏ hàng từ localStorage
     useEffect(() => {
+        setMounted(true);
         const storedCart = JSON.parse(localStorage.getItem("cart") || "[]");
         setCart(storedCart);
     }, []);
-
+    if (!mounted) {
+        return null;
+    }
     // Hàm xử lý xóa sản phẩm khỏi giỏ hàng
     const handleRemoveFromCart = (productId: number) => {
         const updatedCart = cart.filter((product) => product.id !== productId);
@@ -34,7 +38,7 @@ export default function CartPage() {
     return (
         <div className="min-h-screen bg-gradient-to-br from-white to-blue-50">
             {/* Navbar */}
-            <Header />
+         
 
             {/* Nội dung chính */}
             <main className="max-w-6xl mx-auto px-4 py-12">
@@ -92,14 +96,17 @@ export default function CartPage() {
                             </span>
                         </div>
 
-                        {/* Thanh toán */}
-                        <div className="mt-4 flex justify-end">
+                            {/* Thanh toán */}
+                        
+                            <div className="mt-4 flex justify-end">
+                                <Link href={`/order`}>
                             <button
-                                onClick={() => alert("Đặt hàng thành công!")}
+                                // onClick={() => alert("Đặt hàng thành công!")}
                                 className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition"
                             >
-                                Thanh toán
-                            </button>
+                                Đặt hàng
+                                    </button>
+                                </Link>
                         </div>
                     </div>
                 )}

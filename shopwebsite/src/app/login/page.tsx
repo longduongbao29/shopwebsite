@@ -1,16 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Mail, Lock } from "lucide-react";
 import { loginUser } from "@/lib/api";
 
 export default function LoginPage() {
+    const [mounted, setMounted] = useState(false);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const router = useRouter();
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
+    if (!mounted) {
+        return null;
+    }
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         try {

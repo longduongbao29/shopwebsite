@@ -28,3 +28,14 @@ export async function getProducts() {
 
     return res.json();
 }
+export async function getProductById(id: string) {
+    let res = await fetch(`${API_BASE}/products/${id}`, {
+        cache: "no-store", // hoặc sử dụng revalidate nếu cần
+    });
+
+    if (!res.ok) {
+        throw new Error("Không thể lấy thông tin sản phẩm");
+    }
+    res = await res.json();
+    return res;
+}

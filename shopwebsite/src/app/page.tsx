@@ -1,10 +1,9 @@
-"use client"
+"use client";
 import { useEffect, useState } from "react";
-import Header from "@/components/Header";
-import { useRouter } from "next/navigation";
-import { getProducts } from "@/lib/api"; // ✅ import từ module API
+import { getProducts } from "@/lib/api"; // import từ module API
 import { toast, ToastContainer } from 'react-toastify'; // Import toastify
 import { ShoppingCart } from "lucide-react"; // Import icon
+import Link from "next/link";
 
 type Product = {
   id: number;
@@ -15,16 +14,12 @@ type Product = {
 };
 
 export default function HomePage() {
-  const [user, setUser] = useState<{ name: string } | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
-  const router = useRouter();
+  const [mounted, setMounted] = useState(false);
 
   // Đọc user và danh sách sản phẩm từ API
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
+    setMounted(true);
 
     // Fetch product list
     getProducts()
@@ -36,12 +31,6 @@ export default function HomePage() {
       });
   }, []);
 
-  // Hàm xử lý đăng xuất
-  const handleLogout = () => {
-    localStorage.removeItem("user");
-    setUser(null);
-    router.refresh();
-  };
 
   // Hàm xử lý thêm sản phẩm vào giỏ hàng
   const handleAddToCart = (product: Product) => {
@@ -50,14 +39,32 @@ export default function HomePage() {
     localStorage.setItem("cart", JSON.stringify(cart));
     toast.success("Sản phẩm đã được thêm vào giỏ hàng!");
   };
+  function ProductSkeleton() {
+    return (
+      <div className="animate-pulse bg-white shadow rounded-xl p-4">
+        <div className="h-40 bg-gray-200 rounded mb-4"></div>
+        <div className="h-4 bg-gray-300 rounded w-3/4 mb-2"></div>
+        <div className="h-4 bg-gray-300 rounded w-1/2"></div>
+      </div>
+    );
+  }
 
+  if (!mounted) {
+    return null;
+  }
   return (
     <div className="min-h-screen bg-gradient-to-br from-white to-blue-50">
       {/* Navbar */}
-      <Header />
+
 
       {/* Thêm ToastContainer để hiển thị thông báo */}
-      <ToastContainer />
+      <ToastContainer
+        position="top-center"       // Vị trí thông báo ở trên, căn giữa
+        autoClose={3000}           // Tự động đóng sau 3 giây
+        hideProgressBar={true}     // Ẩn thanh tiến trình
+        newestOnTop={true}         // Thông báo mới nhất hiển thị trên cùng
+        pauseOnHover={false}       // Không dừng thông báo khi hover chuột
+      />
 
       {/* Nội dung chính */}
       <main className="max-w-6xl mx-auto px-4 py-12">
@@ -67,36 +74,39 @@ export default function HomePage() {
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
           {products.length > 0 ? (
             products.map((product) => (
-              <div
-                key={product.id}
-                className="bg-white shadow-md rounded-xl overflow-hidden hover:shadow-lg transition relative"
-              >
-                {/* Ảnh sản phẩm */}
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className="w-full h-48 object-cover"
-                />
-                <div className="p-4">
-                  <h4 className="text-lg font-bold text-gray-700 mb-1">{product.name}</h4>
-                  {/* <p className="text-sm text-gray-500 mb-2">{product.description}</p> */}
-                  <p className="text-blue-600 font-semibold">
-                    {product.price.toLocaleString()} đ
-                  </p>
-                </div>
+              // Bọc mỗi khung sản phẩm trong Link dẫn đến trang chi tiết sản phẩm.
+              <Link key={product.id} href={`/products/${product.id}`} className="group" prefetch>
+                <div className="bg-white shadow-md rounded-xl overflow-hidden hover:shadow-lg transition relative flex flex-col h-full">
+                  <div className="w-full aspect-[4/3] relative">
+                    <img
+                      src={product.image}
+                      alt={product.name}
+                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                  </div>
+                  <div className="p-4 flex-1 flex flex-col justify-between">
+                    <h4 className="text-lg font-bold text-gray-700 mb-2 line-clamp-2">{product.name}</h4>
 
-                {/* Nút thêm vào giỏ hàng */}
-                <button
-                  onClick={() => handleAddToCart(product)}
-                  className="absolute bottom-4 right-4 bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 transition"
-                >
-                  <ShoppingCart className="w-6 h-6" />
-                </button>
-              </div>
+                    <p className="text-blue-600 font-semibold text-lg mt-auto">{product.price.toLocaleString()} đ</p>
+                  </div>
+
+
+                  {/* Nút thêm vào giỏ hàng */}
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleAddToCart(product);
+                    }}
+                    className="absolute bottom-4 right-4 bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 transition"
+                  >
+                    <ShoppingCart className="w-6 h-6" />
+                  </button>
+                </div>
+              </Link>
+
             ))
-          ) : (
-            <p>Đang tải sản phẩm...</p>
-          )}
+          ) : Array.from({ length: 10 }).map((_, i) => <ProductSkeleton key={i} />)}
         </div>
       </main>
     </div>
