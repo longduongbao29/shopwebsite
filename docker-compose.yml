@@ -1,0 +1,22 @@
+services:
+  web:
+    image: webshop:latest
+    container_name: webshop-ui
+    ports:
+      - "8000:3000"
+    restart: unless-stopped
+    depends_on:
+     - server 
+    networks:
+      - net
+  server:
+    image: server:latest
+    container_name: mock-server
+    ports:
+      - "8001:3001"
+    networks:
+      - net
+networks:
+  net:
+    driver: bridge
+

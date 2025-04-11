@@ -25,42 +25,48 @@
             "name": "Áo thun nam cổ tròn",
             "price": 199000,
             "image": "https://lados.vn/wp-content/uploads/2024/12/8-XAM-LD9202.jpg",
-            "description": "Áo thun chất lượng cao, thoáng mát cho mùa hè."
+            "description": "Áo thun chất lượng cao, thoáng mát cho mùa hè.",
+            "rating": 5.0
         },
         {
             "id": 2,
             "name": "Quần jeans nữ",
             "price": 399000,
             "image": "https://product.hstatic.net/1000340796/product/z5758993730474_0d4401e0072d39371079d21fc82bd8d3_d7d9c5bfc7104e2095346048ec104b45.jpg",
-            "description": "Quần jeans hiện đại, vừa vặn và thời trang."
+            "description": "Quần jeans hiện đại, vừa vặn và thời trang.",
+            "rating": 5.0
         },
         {
             "id": 3,
-            "name": "Giày sneaker thể thao",
+            "name": "Giày sneaker thể thao 1",
             "price": 799000,
             "image": "https://product.hstatic.net/200000456065/product/b4_19931eede0044fa5bfe39988576302ae.png",
-            "description": "Giày sneaker êm ái, chất liệu cao cấp."
+            "description": "Giày sneaker êm ái, chất liệu cao cấp.",
+            "rating": 4.0
         },
         {
             "id": 4,
-            "name": "Giày sneaker thể thao",
+            "name": "Giày sneaker thể thao 2",
             "price": 799000,
             "image": "https://product.hstatic.net/200000456065/product/b4_19931eede0044fa5bfe39988576302ae.png",
-            "description": "Giày sneakerêm ái, chất liệu cao cấp."
+            "description": "Giày sneakerêm ái, chất liệu cao cấp.",
+            "rating": 3.0
         },
         {
             "id": 5,
-            "name": "Giày sneaker thể thao",
+            "name": "Giày sneaker thể thao 3",
             "price": 799000,
             "image": "https://product.hstatic.net/200000456065/product/b4_19931eede0044fa5bfe39988576302ae.png",
-            "description": "Giày sneakerêm ái, chất liệu cao cấp."
+            "description": "Giày sneakerêm ái, chất liệu cao cấp.",
+            "rating": 4.5
         },
         {
             "id": 6,
-            "name": "Giày sneaker thể thao",
+            "name": "Giày sneaker thể thao 4",
             "price": 799000,
             "image": "https://product.hstatic.net/200000456065/product/b4_19931eede0044fa5bfe39988576302ae.png",
-            "description": "Giày sneakerêm ái, chất liệu cao cấp."
+            "description": "Giày sneakerêm ái, chất liệu cao cấp.",
+            "rating": 2.8
         }
             
     ]

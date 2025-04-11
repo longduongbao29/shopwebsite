@@ -46,7 +46,7 @@ app.get("/api/products", async (req, res) => {
     await db.read();
     return res.json({ success: true, products: db.data.products });
 });
-app.get("/api/products/:id", async (req, res) => {
+app.get("/api/product/:id", async (req, res) => {
     await db.read();
     const { id } = req.params;
     const product = db.data.products.find((p) => p.id === parseInt(id));
