@@ -1,18 +1,12 @@
 "use client";
 import { useState, useEffect } from "react";
 import { FaShoppingCart } from "react-icons/fa";
-import { fetchDistricts, fetchProvinces, fetchWards } from "@/lib/api";
+import { fetchDistricts, fetchProvinces, fetchWards, getProductById } from "@/lib/api";
 import { Province, District, Ward } from "@/schemas/map";
+import { Product } from "@/schemas/product";
 
-type Order = {
-  id: number;
-  name: string;
-  price: number;
-  quantity: number;
-  image: string;
-};
 
-export default function OrderPage() {
+export default function OrderPage({ id }: { id: string }) {
   const [userInfo, setUserInfo] = useState({
     name: "",
     email: "",
@@ -20,7 +14,7 @@ export default function OrderPage() {
     phone: "",
   });
   const [paymentMethod, setPaymentMethod] = useState("cash");
-  const [orderItems, setOrderItems] = useState<Order[]>([]);
+  const [orderItems, setOrderItems] = useState<Product[]>([]);
 
   // State cho các ô lựa chọn địa chỉ
   const [provinces, setProvinces] = useState<Province[]>([]);
@@ -30,10 +24,29 @@ export default function OrderPage() {
   const [selectedDistrict, setSelectedDistrict] = useState<string>("");
   const [selectedWard, setSelectedWard] = useState<string>("");
 
+  
   // Load dữ liệu giỏ hàng từ localStorage khi component mount
-  useEffect(() => {
-    const storedCart = JSON.parse(localStorage.getItem("cart") || "[]");
+  async function fetchCart() {
+    let storedCart: Product[];
+    if (id!=undefined) {
+      const product = (await getProductById(id)).product;
+      storedCart = [{
+        id: product.id,
+        name: product.name,
+        description: product.description,
+        price: product.price,
+        image: product.image,
+        quantity: 1
+      }]
+    } else {
+      storedCart = JSON.parse(localStorage.getItem("cart") || "[]");
+      console.log(storedCart);
+    }
     setOrderItems(storedCart);
+    }
+    
+  useEffect(() => {
+    fetchCart();
   }, []);
 
   // Tính tổng tiền dựa trên orderItems
@@ -100,6 +113,7 @@ export default function OrderPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
+
       <h2 className="text-3xl md:text-4xl font-semibold text-blue-900 text-center mb-8">
         Đơn hàng
       </h2>

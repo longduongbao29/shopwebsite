@@ -39,8 +39,16 @@ export async function getProductById(id: string) {
     return data;
 }
 
+export async function seachProducts(query: string) {
+    const products: Product[] = await (await getProducts()).products;
+    const products_found: Product[] = products.filter(p => p.name === query);
+    return products_found
+}
+
+
 const MAP_URL = "https://vapi.vnappmob.com/api/v2"
 import {Province, District, Ward} from "@/schemas/map"
+import { Product } from "@/schemas/product";
 
 export async function fetchProvinces() {
     try {
@@ -113,49 +121,16 @@ export async function sendChatRequest(messages: ChatMessage[]): Promise<ChatMess
         messages: messages,
         model_name: "meta-llama/llama-4-scout-17b-16e-instruct",
         temperature: 0.5,
-        instruction: `***Role***:
-You are L’s Peter, a friendly, knowledgeable, and helpful virtual assistant for BuyMe Shop, an online store that offers a variety of quality clothes products.
+        instruction: `Bạn là L’s Peter – một trợ lý thân thiện, hữu ích của BuyMe Shop.
 
-***Mission***:
-Your main mission is to support customers throughout their shopping journey at BuyMe Shop. You help them find the right products, answer their questions, and guide them through the purchase process smoothly and efficiently.
+Công việc của bạn là giúp khách hàng duyệt, lựa chọn và mua sản phẩm từ cửa hàng. Đặt câu hỏi để hiểu nhu cầu của họ, gợi ý các mặt hàng phù hợp và cung cấp thông tin chi tiết (giá cả, tính năng, kích thước, v.v.).
 
-***Key Responsibilities***:
+Ngoài ra, hãy hỗ trợ các câu hỏi về vận chuyển, thanh toán, trả hàng và theo dõi đơn hàng.
 
-- Product Recommendations:
+Nói rõ ràng và lịch sự. Nhiệt tình và chuyên nghiệp. Không đưa ra lời khuyên không liên quan đến cửa hàng.
 
-Ask customers about their preferences, needs, or occasions to suggest suitable products.
-
-Provide details such as price, features, materials, sizes, and availability.
-
-- Customer Support:
-
-Answer questions about shipping, returns, payment methods, promotions, and product details.
-
-Assist with order tracking and resolving basic issues related to purchases.
-
-- Purchase Guidance:
-
-Guide customers through adding products to cart, checking out, and completing their purchase.
-
-Provide friendly reminders about discounts, deals, or items left in the cart.
-
-- Tone and Personality:
-
-Always be polite, approachable, and enthusiastic.
-
-Keep your language clear, professional, and engaging.
-
-Aim to make the shopping experience as pleasant and easy as possible.
-
-***Limitations***:
-
-Do not make promises you can’t verify (e.g. delivery dates unless provided).
-
-Avoid giving medical, legal, or financial advice unrelated to the shop’s products.
-
-***Example Greeting***:
-"Hi there! I'm L’s Peter, your shopping assistant from BuyMe Shop. 😊
-How can I help you find the perfect item today?"`
+Ví dụ:
+"Xin chào! Tôi là L’s Peter từ BuyMe Shop 😊 Tôi có thể giúp gì cho bạn hôm nay?"`
     };
 
     try {
@@ -242,6 +217,38 @@ Do not provide any explanation. Only return the result exactly in the specified 
             console.warn("behavior.answer is not a string:", behavior.answer);
         }
         return await behavior_json;
+    } catch (error) {
+        console.error("Error while sending chat request:", error);
+        throw error;
+    }
+}
+
+export async function randomMessage(): Promise < string > {
+    const _msg: ChatMessage[] = [{ role: "user", message: "" }]
+    const payload: ChatRequest = {
+        use_retrieve: false,
+        messages: _msg,
+        model_name: "meta-llama/llama-4-scout-17b-16e-instruct",
+        temperature: 1,
+        instruction: `Bạn là trợ lý của một shop bán quần áo online, nhiệm vụ của bạn là mời chào khách và trò chuyện, hãy đưa ra câu mời chào thú vị.
+        
+        Yêu cầu: siêu vui tính, phù hợp với giới trẻ. Chú ý ngắn gọn thôi, dưới 10 chữ. Ví dụ: Anh chị nói chuyện với em đi..., Ăn cơm chưa bé ơi??`
+    };
+
+    try {
+        const response = await fetch("https://chatbotonline.site/api/chat_with_instruction", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) {
+            throw new Error(`Request failed with status ${response.status}`);
+        }
+        const res_json = await response.json()
+        return res_json.answer
     } catch (error) {
         console.error("Error while sending chat request:", error);
         throw error;
