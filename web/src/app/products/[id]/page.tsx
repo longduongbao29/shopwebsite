@@ -1,10 +1,13 @@
-import Link from "next/link";
 import { getProductById } from "@/lib/api";
-import { ShoppingCart } from "lucide-react";
-import { RatingStars } from "@/components/Rating"
+import { RatingStars } from "@/components/Rating";
+import { ToastContainer } from "react-toastify";
+import AddToCartButton from "@/components/AddToCartButton";
+import BuyNowButton from "@/components/BuyNowButton";
 
-type Prams = Promise<{id:string}>
-export default async function ProductPage({ params }: { params:  Prams  }) {
+
+type Params = Promise<{ id: string }>;
+
+export default async function ProductPage({ params }: { params: Params }) {
     const { id } = await params;
     const data = await getProductById(id);
     const product = data.product;
@@ -24,8 +27,15 @@ export default async function ProductPage({ params }: { params:  Prams  }) {
 
     return (
         <div className="min-h-screen bg-gray-100 py-10 px-4 sm:px-6 lg:px-8">
+            {/* ToastContainer có thể được đặt ở đây hoặc trong một client component riêng */}
+            <ToastContainer
+                position="top-center"
+                autoClose={3000}
+                hideProgressBar={true}
+                newestOnTop={true}
+                pauseOnHover={false}
+            />
             <div className="max-w-6xl mx-auto space-y-10">
-
                 {/* Product Section */}
                 <div className="bg-white rounded-2xl shadow-lg overflow-hidden lg:flex">
                     {/* Image */}
@@ -42,32 +52,31 @@ export default async function ProductPage({ params }: { params:  Prams  }) {
                         <div className="space-y-4">
                             <h1 className="text-3xl font-bold text-gray-900">{product.name}</h1>
                             <RatingStars rating={product.rating} />
-                            <p className="text-lg text-gray-600 leading-relaxed">{product.description}</p>
+                            <p className="text-lg text-gray-600 leading-relaxed">
+                                {product.description}
+                            </p>
                         </div>
 
-                        {/* Price + Button for mobile */}
+                        {/* Mobile view: Price, Mua Ngay & AddToCartButton */}
                         <div className="flex flex-col gap-3 lg:hidden mt-6">
-                            <span className="flex text-3xl  justify-center  font-bold text-blue-600">
+                            <span className="flex text-2xl justify-center font-bold text-blue-600">
                                 {product.price.toLocaleString()} đ
                             </span>
-                            <button className="flex items-center justify-center gap-2 text-blue-600 hover:text-blue-800 text-lg font-medium transition">
-                                <ShoppingCart size={24} />
-                                <span>Thêm vào giỏ hàng</span>
-                            </button>
+                            <div className="flex justify-center gap-3">
+                                <BuyNowButton product={product} />
+                                <AddToCartButton product={product} />
+                            </div>
                         </div>
 
-
-                        {/* Price (desktop) */}
-                        <div className="hidden lg:block text-4xl font-bold text-blue-600 mt-6">
+                        {/* Desktop view: Price */}
+                        <div className="hidden lg:block text-3xl font-bold text-blue-600 mt-6">
                             {product.price.toLocaleString()} đ
                         </div>
 
-                        {/* Button fixed bottom right on desktop */}
-                        <div className="hidden lg:block absolute bottom-8 right-8">
-                            <button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-lg font-semibold px-4 py-2 rounded-lg shadow transition">
-                                <ShoppingCart size={24} />
-                                <span>Thêm vào giỏ hàng</span>
-                            </button>
+                        {/* Desktop view: Fixed buttons at bottom right (Mua Ngay & AddToCartButton) */}
+                        <div className="hidden lg:flex absolute bottom-8 right-8 gap-3">
+                            <BuyNowButton product={product} />
+                            <AddToCartButton product={product} />
                         </div>
                     </div>
                 </div>
@@ -77,11 +86,12 @@ export default async function ProductPage({ params }: { params:  Prams  }) {
                     <h2 className="text-2xl font-bold text-gray-800 mb-4">Mô tả chi tiết</h2>
                     <div className="text-gray-700 space-y-4 leading-relaxed">
                         <p>
-                            {product.longDescription || "Đây là phần mô tả chi tiết sản phẩm, có thể dài nhiều đoạn và hỗ trợ định dạng văn bản nếu dùng CMS như Sanity, Strapi hoặc Markdown HTML."}
+                            {product.longDescription ||
+                                "Đây là phần mô tả chi tiết sản phẩm, có thể dài nhiều đoạn và hỗ trợ định dạng văn bản nếu dùng CMS như Sanity, Strapi hoặc Markdown HTML."}
                         </p>
                         <p>
-                            Sản phẩm được thiết kế với chất liệu cao cấp, phù hợp với nhu cầu sử dụng hằng ngày cũng như chuyên nghiệp.
-                            Bảo hành 12 tháng và hỗ trợ đổi trả trong vòng 7 ngày.
+                            Sản phẩm được thiết kế với chất liệu cao cấp, phù hợp với nhu cầu sử dụng hằng ngày
+                            cũng như chuyên nghiệp. Bảo hành 12 tháng và hỗ trợ đổi trả trong vòng 7 ngày.
                         </p>
                     </div>
                 </div>
@@ -98,16 +108,6 @@ export default async function ProductPage({ params }: { params:  Prams  }) {
                             </div>
                         ))}
                     </div>
-                </div>
-
-                {/* Back Link */}
-                <div className="text-center pt-4">
-                    <Link
-                        href="/"
-                        className="text-blue-600 text-lg font-medium hover:underline"
-                    >
-                        ← Quay lại danh sách sản phẩm
-                    </Link>
                 </div>
             </div>
         </div>

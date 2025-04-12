@@ -1,8 +1,8 @@
 "use client";
-
 import { useEffect, useState } from "react";
 import { ShoppingCart, Trash2 } from "lucide-react"; // Thêm icon thùng rác
 import Link from "next/link";
+
 
 type Product = {
     id: number;
