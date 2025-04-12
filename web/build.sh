@@ -1,1 +1,1 @@
-docker build -t webshop .
+docker build --no-cache -t webshop .
