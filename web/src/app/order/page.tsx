@@ -24,17 +24,25 @@ export default function OrderPage({ id }: { id: string }) {
   const [selectedDistrict, setSelectedDistrict] = useState<string>("");
   const [selectedWard, setSelectedWard] = useState<string>("");
 
+  
   // Load dữ liệu giỏ hàng từ localStorage khi component mount
   async function fetchCart() {
-    let storedCart: Product;
-    if (id) {
+    let storedCart: Product[];
+    if (id!=undefined) {
       const product = (await getProductById(id)).product;
-      storedCart = {id:product.id, name:product.name,description: product.description, price:product.price,image: product.image,quantity: 1}
+      storedCart = [{
+        id: product.id,
+        name: product.name,
+        description: product.description,
+        price: product.price,
+        image: product.image,
+        quantity: 1
+      }]
     } else {
       storedCart = JSON.parse(localStorage.getItem("cart") || "[]");
-      
+      console.log(storedCart);
     }
-    setOrderItems([storedCart]);
+    setOrderItems(storedCart);
     }
     
   useEffect(() => {

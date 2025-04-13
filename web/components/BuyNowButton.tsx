@@ -5,22 +5,6 @@ import type { Product } from "@/schemas/product"; // hoặc chỉnh lại type n
 
 export default function BuyNowButton({ product }: { product: Product }) {
     const router = useRouter();
-    const addToCart = (product: Product) => {
-            // Lấy giỏ hàng từ localStorage
-            const cart = JSON.parse(localStorage.getItem("cart") || "[]");
-    
-            // Kiểm tra xem sản phẩm đã tồn tại trong giỏ hàng chưa
-            const existingProductIndex = cart.findIndex((item: Product) => item.id === product.id);
-    
-            if (existingProductIndex !== -1) {
-                cart[existingProductIndex].quantity += 1;
-            } else {
-                cart.push({ ...product, quantity: 1 });
-            }
-            // Cập nhật lại localStorage
-            localStorage.setItem("cart", JSON.stringify(cart));
-        
-        };
     const handleBuyNow = (product: Product) => {
         router.push(`/order/${product.id}`); // Chuyển sang trang giỏ hàng
     };

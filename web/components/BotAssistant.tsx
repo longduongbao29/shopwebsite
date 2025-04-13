@@ -10,7 +10,6 @@ export default function BotAssistant() {
     const [chatOpen, setChatOpen] = useState(false);
     const [message, setMessage] = useState("");
     const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
-    const [chatBottom, setChatBottom] = useState("0rem"); // Giá trị mặc định cho desktop
     const [randMessage, setRandomMessage] = useState("Chào bạn, bạn cần giúp gì không!!!")
     const [isBotVisible, setIsBotVisible] = useState(true);
     const chatContainerRef = useRef<HTMLDivElement>(null);
@@ -34,35 +33,6 @@ export default function BotAssistant() {
         window.addEventListener("resize", checkMobile);
         return () => window.removeEventListener("resize", checkMobile);
     }, []);
-
-    // Lắng nghe sự thay đổi của viewport khi bàn phím ảo xuất hiện trên mobile
-    // Đặt giá trị bottom mặc định, ví dụ "1rem" hoặc giá trị khác phù hợp
-    const defaultBottom = "0rem";
-
-    useEffect(() => {
-        if (isMobile && window.visualViewport) {
-            const onViewportResize = () => {
-                const viewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
-                // Nếu chiều cao viewport bằng chiều cao của cửa sổ, nghĩa là bàn phím tắt
-                if (viewportHeight === window.innerHeight) {
-                    setChatBottom(defaultBottom);
-                
-                } else {
-                    // Tính khoảng cách bị trừ đi do bàn phím xuất hiện
-                    const bottomOffset = window.innerHeight - viewportHeight;
-                    // Cộng thêm khoảng đệm (ví dụ 16px) để modal hiển thị hợp lý
-                    setChatBottom(`${bottomOffset}px`);
-                
-                }
-            };
-            window.visualViewport.addEventListener("resize", onViewportResize);
-            return () => {
-                if (window.visualViewport) {
-                    window.visualViewport.removeEventListener("resize", onViewportResize);
-                }
-            };
-        }
-    }, [isMobile, defaultBottom]);
 
 
 
@@ -129,7 +99,7 @@ export default function BotAssistant() {
                         <div className="fixed inset-0 z-[9999] bg-transparent backdrop-blur-sm flex justify-center items-end">
                             <div
                                 className="w-11/12 bg-white rounded-lg shadow-lg overflow-hidden flex flex-col  "
-                                style={{ height: "60vh", marginBottom: chatBottom }}
+                                style={{ height: "80vh" }}
                             >
                                 {/* Header */}
                                 <div className="bg-blue-600 px-4 py-2 flex items-center justify-between">

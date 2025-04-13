@@ -1,6 +1,6 @@
 import OrderPage from "@/src/app/order/page";
-
-export default async function OrderPageWrapper({ params }: { params: { id: string } }) {
+type Params = Promise<{ id: string }>;
+export default async function OrderPageWrapper({ params }: { params:  Params  }) {
   const {id} = await params
   return <OrderPage id={id} />;
 }

@@ -39,8 +39,16 @@ export async function getProductById(id: string) {
     return data;
 }
 
+export async function seachProducts(query: string) {
+    const products: Product[] = await (await getProducts()).products;
+    const products_found: Product[] = products.filter(p => p.name === query);
+    return products_found
+}
+
+
 const MAP_URL = "https://vapi.vnappmob.com/api/v2"
 import {Province, District, Ward} from "@/schemas/map"
+import { Product } from "@/schemas/product";
 
 export async function fetchProvinces() {
     try {

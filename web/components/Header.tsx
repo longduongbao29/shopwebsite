@@ -9,6 +9,7 @@ export default function Header() {
     const [mounted, setMounted] = useState(false);
     const [user, setUser] = useState<{ name: string } | null>(null);
     const [isMenuOpen, setIsMenuOpen] = useState(false);  // Trạng thái của menu hamburger
+    const [searchText, setSearchText] = useState(""); // 🆕 Thêm state cho ô tìm kiếm
     const router = useRouter();
 
     useEffect(() => {
@@ -22,6 +23,15 @@ export default function Header() {
     if (!mounted) {
         return null;
     }
+    const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const query = searchText.trim();
+        if (query !== "") {
+            router.push(`/search?query=${encodeURIComponent(query)}`);
+            setIsMenuOpen(false);
+            // setSearchText(""); // Reset input nếu muốn
+        }
+    };
     const handleLogout = () => {
         setIsMenuOpen(false);
         localStorage.removeItem("user");
@@ -52,14 +62,13 @@ export default function Header() {
                         />
                     </Link>
                 </div>
-
-
-
                 <div className="flex-grow mx-4">
-                    <div className="relative">
+                    <form onSubmit={handleSearchSubmit} className="relative">
                         <input
                             type="text"
                             placeholder="Tìm sản phẩm..."
+                            value={searchText}
+                            onChange={(e) => setSearchText(e.target.value)}
                             className="w-full px-4 py-2 pl-10 rounded-full bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-400 transition-all duration-300 text-sm text-gray-700"
                         />
                         <svg
@@ -72,7 +81,7 @@ export default function Header() {
                         >
                             <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1010.5 18a7.5 7.5 0 006.15-3.35z" />
                         </svg>
-                    </div>
+                    </form>
                 </div>
 
 
@@ -113,17 +122,17 @@ export default function Header() {
                                 </button>
                             </div>
 
-                            
+
                         </div>
 
 
                     ) : (
-                            <Link
-                                href="/login"
-                                className="relative inline-block px-4 py-2 text-md font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-800 rounded-full shadow-md transform transition duration-300 ease-out hover:scale-105 hover:shadow-xl"
-                            >
-                                Đăng nhập
-                            </Link>
+                        <Link
+                            href="/login"
+                            className="relative inline-block px-4 py-2 text-md font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-800 rounded-full shadow-md transform transition duration-300 ease-out hover:scale-105 hover:shadow-xl"
+                        >
+                            Đăng nhập
+                        </Link>
 
                     )}
                 </div>
@@ -159,7 +168,7 @@ export default function Header() {
                                 <button
                                     onClick={handleLogout}
                                     className="flex items-center text-red-600 hover:text-red-700 font-medium"
-                                    
+
                                 >
                                     <LogOut className="w-5 h-5 mr-1" />
                                     Đăng xuất
