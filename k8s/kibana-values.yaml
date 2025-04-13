@@ -1,0 +1,23 @@
+elasticsearchHosts: "https://elasticsearch-master:9200"
+
+tls:
+  enabled: true
+
+service:
+  type: LoadBalancer
+  ports:
+    - name: http
+      port: 5601
+      protocol: TCP
+      targetPort: 5601
+resources:
+  requests:
+    cpu: "200m"
+    memory: "1Gi"
+  limits:
+    cpu: "500m"
+    memory: "1Gi"
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

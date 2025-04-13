@@ -1,20 +1,29 @@
-# Use the official Node.js image as the base image
-FROM node:18
+FROM python:3.11-slim
 
-# Set the working directory inside the container
-WORKDIR /app
+# Cài đặt build tools và các dependency cơ bản
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    gcc \
+    libffi-dev \
+    libssl-dev \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-# Copy package.json and package-lock.json to the working directory
-COPY package*.json ./
+# Set working directory
+WORKDIR /src
 
-# Install dependencies
-RUN npm install
+# Copy dependency file
+COPY requirements.txt .
 
-# Copy the rest of the application code to the working directory
+# Cài đặt Python dependencies
+RUN pip install --upgrade pip \
+    && pip install --no-cache-dir -r requirements.txt
+
+# Copy source code
 COPY . .
 
-# Expose the port the app runs on
-EXPOSE 3001
+# Expose port
+EXPOSE 8000
 
-# Define the command to run the application
-CMD ["npm", "start"]
+# Run the app
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

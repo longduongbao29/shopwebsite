@@ -1,9 +1,9 @@
 "use client";
-
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Mail, Lock } from "lucide-react";
-import { loginUser } from "@/lib/api";
+import { loginUser } from "@/lib/auth_api";
+import { toast } from "react-toastify";
 
 export default function LoginPage() {
     const [mounted, setMounted] = useState(false);
@@ -21,10 +21,12 @@ export default function LoginPage() {
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const response = await loginUser(email, password);
-            localStorage.setItem("user", JSON.stringify(response.user));
-            window.location.href = "/";;
-            router.push("/");
+            await loginUser(email, password);
+            toast.success("Đăng nhập thành công!");
+            document.dispatchEvent(new CustomEvent("header:update"));
+            setTimeout(() => {
+                router.push("/");
+            }, 1000); // Delay navigation by 1 second
         } catch (err) {
             setError(err instanceof Error ? err.message : "An unknown error occurred");
         }
@@ -32,6 +34,7 @@ export default function LoginPage() {
 
     return (
         <div className="min-h-[calc(100vh-100px)] flex items-center justify-center bg-gradient-to-br from-blue-100 via-white to-pink-100">
+           
             <div className="relative w-full max-w-md bg-white/70 backdrop-blur-md p-8 rounded-2xl shadow-lg">
                 
                 <h1 className="text-3xl font-extrabold text-center text-orange-500 mb-6 flex items-center justify-center gap-2">

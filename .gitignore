@@ -12,6 +12,7 @@ yarn-error.log*
 # Local environment files
 .env
 .env.local
+k8s/buymeshop-env-configmap.yaml
 
 # Editors & IDEs
 .DS_Store
@@ -20,3 +21,11 @@ yarn-error.log*
 
 # Others
 *.log
+__pycache__/
+certs/
+db_data/
+esdatadir/
+kibanadata/
+
+*.pem
+*.crt
