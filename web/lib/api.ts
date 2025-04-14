@@ -109,7 +109,10 @@ export interface ChatRequest {
     temperature: number;
     instruction: string;
 }
-
+export interface Behavior {
+    behavior: string;
+    params: string;
+}
 /**
  * Gửi yêu cầu chat tới API
  * @param userMessage - Tin nhắn nhập từ phía người dùng
@@ -127,10 +130,7 @@ Công việc của bạn là giúp khách hàng duyệt, lựa chọn và mua s�
 
 Ngoài ra, hãy hỗ trợ các câu hỏi về vận chuyển, thanh toán, trả hàng và theo dõi đơn hàng.
 
-Nói rõ ràng và lịch sự. Nhiệt tình và chuyên nghiệp. Không đưa ra lời khuyên không liên quan đến cửa hàng.
-
-Ví dụ:
-"Xin chào! Tôi là L’s Peter từ BuyMe Shop 😊 Tôi có thể giúp gì cho bạn hôm nay?"`
+Nói rõ ràng và lịch sự. Nhiệt tình và chuyên nghiệp. Không đưa ra lời khuyên không liên quan đến cửa hàng.`
     };
 
     try {
@@ -146,30 +146,22 @@ Ví dụ:
             throw new Error(`Request failed with status ${response.status}`);
         }
         const res_json = await response.json()
-        const chat_msg : ChatMessage = {"role": "AI","message":res_json.answer}
+        const chat_msg: ChatMessage = { "role": "AI", "message": res_json.answer }
+        
+        
         return chat_msg;
     } catch (error) {
         console.error("Error while sending chat request:", error);
         throw error;
-    } finally {
-        const last_msg = messages[messages.length - 1];
-        console.log("Last msg: ", last_msg);
-        
-        const behavior = await analyzeBehavior(last_msg.message);
-        console.log("behavior: ", behavior);
     }
 }
 
-export interface Behavior{
-    behavior: string;
-    params: string;
-}
 export async function analyzeBehavior(message: string): Promise<Behavior> {
     const _msg: ChatMessage[] = [{ role: "user", message: message.trim() }]
     const payload: ChatRequest = {
         use_retrieve: false,
         messages: _msg,
-        model_name: "meta-llama/llama-4-scout-17b-16e-instruct",
+        model_name: "gemma2-9b-it",
         temperature: 0.5,
         instruction: `You are an expert in analyzing customer intent for an online clothing store. Your task is to determine what the customer wants to do based on their message.
 

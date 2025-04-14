@@ -1,9 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { sendChatRequest, ChatMessage , randomMessage} from "@/lib/api";
+import { sendChatRequest, ChatMessage , randomMessage, Behavior, analyzeBehavior} from "@/lib/api";
 import { useRef } from "react";
-
+import { useRouter } from "next/navigation";
 export default function BotAssistant() {
     const [showMessage, setShowMessage] = useState(true);
     const [isMobile, setIsMobile] = useState(false);
@@ -13,11 +13,10 @@ export default function BotAssistant() {
     const [randMessage, setRandomMessage] = useState("Chào bạn, bạn cần giúp gì không!!!")
     const [isBotVisible, setIsBotVisible] = useState(true);
     const chatContainerRef = useRef<HTMLDivElement>(null);
-
+    const router = useRouter();
     if (chatContainerRef.current) {
         chatContainerRef.current.scrollTo({ top: chatContainerRef.current.scrollHeight, behavior: "smooth" });
     }
-
     useEffect(() => {
         if (chatContainerRef.current) {
             chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
@@ -33,9 +32,6 @@ export default function BotAssistant() {
         window.addEventListener("resize", checkMobile);
         return () => window.removeEventListener("resize", checkMobile);
     }, []);
-
-
-
     useEffect(() => {
         let timeout: NodeJS.Timeout;
         if (showMessage) {
@@ -77,8 +73,13 @@ export default function BotAssistant() {
         setMessage("");
 
         try {
-            const result = await sendChatRequest(updatedHistory);
+            const [result, behavior] = await Promise.all([
+                sendChatRequest(updatedHistory),
+                analyzeBehavior(message.trim())
+            ]);
             setChatHistory((prevHistory) => [...prevHistory, result]);
+            doAction(behavior)
+
         } catch (error) {
             console.error("Error while sending chat request:", error);
         }
@@ -89,7 +90,13 @@ export default function BotAssistant() {
             handleSendMessage();
         }
     };
-
+    const doAction = (behavior: Behavior)=>{
+        const action = behavior.behavior;
+        const params = behavior.params;
+        if (action === "search" || action === "price") {
+            router.push(`/search?query=${encodeURIComponent(params)}`)
+        }
+    }
     return (
         <>
             {/* Chat Modal */}

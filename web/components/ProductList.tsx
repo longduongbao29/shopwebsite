@@ -1,8 +1,15 @@
 import Link from "next/link";
 import { ShoppingCartIcon } from "lucide-react"; // Hoặc bất kỳ icon nào bạn dùng
 import React from "react";
+import { Product } from "@/schemas/product";
 
-const ProductList = ({ products, handleAddToCart, activeProductId }) => {
+interface ProductListProps {
+    products: Product[];
+    handleAddToCart: (product: Product) => void;
+    activeProductId: string | null;
+}
+
+const ProductList: React.FC<ProductListProps> = ({ products, handleAddToCart, activeProductId }) => {
     function ProductSkeleton() {
         return (
             <div className="animate-pulse bg-white shadow rounded-xl p-4">
@@ -49,7 +56,7 @@ const ProductList = ({ products, handleAddToCart, activeProductId }) => {
                                         className="text-blue-600 p-2 rounded-full hover:bg-blue-50 hover:text-blue-700 transition-colors duration-200"
                                     >
                                         <ShoppingCartIcon
-                                            className={`w-6 h-6 text-blue-600 transition-transform ${activeProductId === product.id ? "animate-zoom-rotate" : ""
+                                            className={`w-6 h-6 text-blue-600 transition-transform ${activeProductId === product.id.toString() ? "animate-zoom-rotate" : ""
                                                 }`}
                                         />
                                     </button>
