@@ -80,7 +80,7 @@ export default function HomePage() {
                     <><h3 className="text-2xl font-semibold text-gray-800 mb-4">Tìm kiếm cho {query}</h3><ProductList
                             products={products}
                             handleAddToCart={handleAddToCart}
-                            activeProductId={activeProductId} /></>
+                            activeProductId={activeProductId !== null ? activeProductId.toString() : null} /></>
                 ) : (
                     <div className="h-[80vh] flex items-center justify-center bg-gradient-to-br from-white to-blue-50 px-4">
                         <div className="mb-40 text-center animate-fade-in-up">

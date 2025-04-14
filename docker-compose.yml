@@ -6,17 +6,42 @@ services:
       - "8000:3000"
     restart: unless-stopped
     depends_on:
-     - server 
+      - server
+      - db
     networks:
       - net
+    environment:
+      - API_URL=http://server:3001  # Ví dụ nếu cần kết nối với server
+
   server:
     image: server:latest
     container_name: mock-server
     ports:
       - "8001:3001"
+    restart: unless-stopped
+    depends_on:
+      - db
     networks:
       - net
+    environment:
+      - DATABASE_URL=${POSTGRES_URL}
+
+  db:
+    image: postgres:latest
+    container_name: postgres-db
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_URL: ${POSTGRES_URL}
+    volumes:
+      - ./db_data:/var/lib/postgresql/data
+    networks:
+      - net
+
 networks:
   net:
     driver: bridge
-

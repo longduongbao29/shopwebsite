@@ -75,7 +75,7 @@ export default function HomePage() {
         <ProductList
           products={products}
           handleAddToCart={handleAddToCart}
-          activeProductId={activeProductId}
+          activeProductId={activeProductId !== null ? activeProductId.toString() : null}
         />
       </main>
     </div>
