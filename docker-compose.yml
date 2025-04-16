@@ -7,11 +7,8 @@ services:
     restart: unless-stopped
     depends_on:
       - server
-      - db
     networks:
-      - net
-    environment:
-      - API_URL=http://server:3001  # Ví dụ nếu cần kết nối với server
+      - buymeshop-network
 
   server:
     image: server:latest
@@ -20,15 +17,15 @@ services:
       - "8001:3001"
     restart: unless-stopped
     depends_on:
-      - db
+      - pg_db
     networks:
-      - net
+      - buymeshop-network
     environment:
       - DATABASE_URL=${POSTGRES_URL}
 
-  db:
+  pg_db:
     image: postgres:latest
-    container_name: postgres-db
+    container_name: buymeshop-postgres-db
     ports:
       - "5432:5432"
     restart: unless-stopped
@@ -40,8 +37,13 @@ services:
     volumes:
       - ./db_data:/var/lib/postgresql/data
     networks:
-      - net
+      - buymeshop-network
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
 
 networks:
-  net:
+  buymeshop-network:
     driver: bridge

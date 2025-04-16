@@ -9,10 +9,6 @@ class BaseDB(ABC):
     @inject
     def __init__(self,config:Config):
         self.config = config
-    
-    @abstractmethod
-    def connect(self):
-        pass
         
     @abstractmethod
     def create(self):

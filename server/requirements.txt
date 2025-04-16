@@ -2,3 +2,7 @@ fastapi
 passlib
 sqlalchemy
 injector 
+elasticsearch
+transformers
+elasticsearch-dsl
+langchain-groq

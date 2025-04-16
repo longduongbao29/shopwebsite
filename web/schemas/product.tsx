@@ -1,8 +1,16 @@
 export interface Product {
-    id: number;
     name: string;
-    description: string;
+    id: number;
+    product_name: string;
     price: number;
-    image: string; // Đảm bảo có trường image trong API sản phẩm
-    quantity: number;
-};
+    description: string;
+    image: string;
+    category: string[]; // multi=True indicates an array
+    brand: string;
+    size: string[]; // multi=True indicates an array
+    color: string[]; // multi=True indicates an array
+    stock: number;
+    original: string;
+    created_at: Date;
+    updated_at: Date;
+}
