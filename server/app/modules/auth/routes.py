@@ -1,12 +1,10 @@
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.responses import JSONResponse
 from fastapi.security import OAuth2PasswordRequestForm
 
-from app.modules.auth.Authentication import Authentication
-from app.modules.users.UserManager import UserManager
-from app.modules.users.schemas import UserInfo, User
 from app.core.dependencies import injector
+from app.modules.auth.Authentication import Authentication
+from app.modules.users.schemas import User
 
 router = APIRouter()
 
@@ -40,4 +38,3 @@ def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Login failed: {str(e)}"
         )
-    

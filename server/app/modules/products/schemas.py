@@ -4,7 +4,6 @@ from datetime import datetime
 
 
 class Product(BaseModel):
-    id: str
     product_name: str
     price: Optional[float]
     description: Optional[str]
@@ -21,3 +20,7 @@ class Product(BaseModel):
     class Config:
         validate_by_name = True
         from_attributes = True
+
+
+class ProductResponse(Product):
+    id: int

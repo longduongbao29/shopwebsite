@@ -5,15 +5,21 @@ from elasticsearch_dsl.query import ScriptScore
 from typing import List, Optional, Type
 from langchain_core.tools.base import BaseTool
 
-from app.modules.products.models import ProductDocument, Category
-from app.modules.products.schemas import ProductResponse
+from app.db.PosgreSQL import PosgreSQL
+from app.modules.products.models import (
+    ProductDocument,
+    Category,
+    Product as ProductModel,
+)
+from app.modules.products.schemas import Product, ProductResponse
 from app.modules.chatbot.embedding.Embedding import Embedding
 from app.db.ElasticSearch import ElasticSearch
 
 
 class ProductManager:
     @inject
-    def __init__(self, embedding: Embedding, es: ElasticSearch):
+    def __init__(self, embedding: Embedding, es: ElasticSearch, pg: PosgreSQL):
+        self.pg = pg
         self.es = es
         self.embedding = embedding
 
@@ -25,10 +31,9 @@ class ProductManager:
             products.append(ProductResponse(**data))
         return products
 
-    def createProduct(self, data):
-        product = ProductDocument(**data)
-        product.save(self.embedding)
-        return ProductResponse(**product.to_dict())
+    def createProduct(self, prd: Product):
+        db_obj = self.pg.create(ProductModel, dict(prd))
+        return ProductResponse(**db_obj.__dict__)
 
     def getProductSemantic(self, query):
         s = Search(index="products")
@@ -45,7 +50,7 @@ class ProductManager:
         )
 
         results = s.execute()
-        return [ProductResponse(**doc.to_dict()) for doc in results]
+        return [Product(**doc.to_dict()) for doc in results]
 
     @classmethod
     def search_products(
@@ -80,26 +85,28 @@ class ProductManager:
             data = doc.to_dict()
             products.append(ProductResponse(**data))
         return products
+
     @classmethod
-    def product_json(cls, produtcs:list[ProductResponse]):
+    def product_json(cls, produtcs: list[Product]):
         return [
             {
-            "id": product.id,
-            "product_name": product.product_name,
-            "price": product.price,
-            "description": product.description,
-            "image": product.image,
-            "category": product.category,
-            "brand": product.brand,
-            "size": product.size,
-            "color": product.color,
-            "stock": product.stock,
-            "original": product.original,
-            "created_at": product.created_at,
-            "updated_at": product.updated_at,
+                "id": product.id,
+                "product_name": product.product_name,
+                "price": product.price,
+                "description": product.description,
+                "image": product.image,
+                "category": product.category,
+                "brand": product.brand,
+                "size": product.size,
+                "color": product.color,
+                "stock": product.stock,
+                "original": product.original,
+                "created_at": product.created_at,
+                "updated_at": product.updated_at,
             }
             for product in produtcs
         ]
+
     @classmethod
     def getSearchTool(cls):
         from pydantic import BaseModel, Field
@@ -135,11 +142,10 @@ class ProductManager:
                 min_price: float = 0,
                 max_price: float = 1e10,
             ) -> str:
-                products =  ProductManager.search_products(
+                products = ProductManager.search_products(
                     query, categories, min_price, max_price
                 )
-                
+
                 return ProductManager.product_json(products)
-                
 
         return ProductSearchTool()

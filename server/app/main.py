@@ -4,6 +4,7 @@ from app.modules.users.routes import router as users_router
 from app.modules.products.routes import router as products_router
 # from app.modules.orders.routes import router as orders_router
 from app.modules.chatbot.routers import router as chatbot_router
+import app.db.sync
 
 app = FastAPI(
     title="E-Commerce API",

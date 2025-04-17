@@ -1,9 +1,9 @@
 from uuid import uuid4
-from elasticsearch_dsl import Document, Text, Keyword, Float, Integer, Date, DenseVector
+from elasticsearch_dsl import Document, Text, Keyword, Float, Integer, Date
 from enum import Enum
 from datetime import datetime
-from app.modules.chatbot.embedding.Embedding import Embedding
 import pytz
+
 
 class Category(str, Enum):
     SHIRT = "shirt"
@@ -17,6 +17,8 @@ class Category(str, Enum):
     SHORTS = "shorts"
     HOODIE = "hoodie"
     BAG = "bag"
+
+
 class Size(str, Enum):
     S = "S"
     SM = "SM"
@@ -29,7 +31,7 @@ class Size(str, Enum):
 
 # Elasticsearch DSL document
 class ProductDocument(Document):
-    id = Keyword()
+    id = Integer()
     product_name = Text()
     price = Float()
     description = Text()
@@ -42,30 +44,57 @@ class ProductDocument(Document):
     original = Keyword()
     created_at = Date()
     updated_at = Date()
-    content = Text()
-    dense_vector = DenseVector(dims=768)
+
     class Index:
         name = "buymeshop_products"
-    def save(self,embedding:Embedding ,**kwargs):
-        utc_time = datetime.now(pytz.utc)
-        self.id = str(uuid4())
-        # Nếu chưa có embedding, tự generate từ description
-        if not self.dense_vector and self.description:
-            embedding_text = f"ID: {self.id}\n"
-            embedding_text += f"Name: {self.product_name}\n"
-            embedding_text += f"Category: {self.category}\n"
-            embedding_text += f"Brand: {self.brand}\n"
-            embedding_text += f"Size: {self.size}\n"
-            embedding_text += f"Color: {self.color}\n"
-            embedding_text += f"Stock: {self.stock}\n"
-            embedding_text += f"Price: {self.price}\n"
-            embedding_text += f"Original: {self.original}\n"
-            embedding_text += f"Description: {self.description}\n"
-            self.content = embedding_text
 
-            embedding_result = embedding.embedd(embedding_text)
-            self.dense_vector = embedding_result
+    @classmethod
+    def from_product(cls, product: "Product"):
+        """
+        Khởi tạo ProductDocument từ instance SQLAlchemy Product.
+        """
+        doc = cls(
+            product_name=product.product_name,
+            price=product.price,
+            description=product.description,
+            image=product.image,
+            category=product.category,
+            brand=product.brand,
+            size=product.size,
+            color=product.color,
+            stock=product.stock,
+            original=product.original,
+            created_at=product.created_at,
+            updated_at=product.updated_at,
+        )
+        return doc
+
+    def save(self, **kwargs):
+        utc_time = datetime.now(pytz.utc)
         if not self.created_at:
             self.created_at = utc_time.astimezone(pytz.timezone("Asia/Ho_Chi_Minh"))
         self.updated_at = utc_time.astimezone(pytz.timezone("Asia/Ho_Chi_Minh"))
         return super().save(**kwargs)
+
+
+from datetime import datetime
+from sqlalchemy import Column, Integer, String, Float, DateTime, JSON, ARRAY
+from app.db.PosgreSQL import PosgreSQL
+
+
+class Product(PosgreSQL.Base):
+    __tablename__ = "products"
+
+    id = Column(Integer, primary_key=True, autoincrement=True, index=True)
+    product_name = Column(String, nullable=False)
+    price = Column(Float, nullable=False)
+    description = Column(String, nullable=True)
+    image = Column(String, nullable=True)
+    category = Column(ARRAY(String), nullable=False, default=list)
+    brand = Column(String, nullable=True)
+    size = Column(ARRAY(String), nullable=True, default=list)
+    color = Column(ARRAY(String), nullable=True, default=list)
+    stock = Column(Integer, nullable=False, default=0)
+    original = Column(String, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

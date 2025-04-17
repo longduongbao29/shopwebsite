@@ -1,8 +1,10 @@
 from injector import inject
 from typing import Generator, Type, Optional, Any
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy import Engine, create_engine
+from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.ext.declarative import declarative_base
+
 from app.db.base import BaseDB
 from app.core.config import Config
 from app.utils.logger import logger_setup
@@ -22,15 +24,17 @@ class EngineSingleton:
 
 
 class PosgreSQL(BaseDB):
+    Base = declarative_base()
 
     @inject
     def __init__(self, config: Config):
         self.config = config
-
         self.engine = EngineSingleton(config)._engine
         self.SessionLocal = sessionmaker(
             autocommit=False, autoflush=False, bind=self.engine
         )
+        self.Base.metadata.create_all(bind=self.engine)
+
 
     def get_db(self) -> Generator[Session, None, None]:
         """Provides a generator that yields a database session and ensures its proper closure.
@@ -104,7 +108,9 @@ class PosgreSQL(BaseDB):
 
         db = next(self.get_db())
         if not hasattr(model, key):
-            raise AttributeError(f"Model '{model.__name__}' does not have field '{key}'.")
+            raise AttributeError(
+                f"Model '{model.__name__}' does not have field '{key}'."
+            )
 
         field = getattr(model, key)
         obj = db.query(model).filter(field == value).first()
