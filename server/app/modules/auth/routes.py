@@ -1,22 +1,43 @@
+from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
-from app.modules.auth.schemas import UserRegister, UserResponse, Token
-from app.modules.auth import services
-from app.modules.users.models import User  
+from fastapi.responses import JSONResponse
+from fastapi.security import OAuth2PasswordRequestForm
+
+from app.modules.auth.Authentication import Authentication
+from app.modules.users.UserManager import UserManager
+from app.modules.users.schemas import UserInfo, User
+from app.core.dependencies import injector
 
 router = APIRouter()
 
-@router.post("/register", response_model=UserResponse)
-def register(user: UserRegister, db: Session = Depends(get_db)):
-    db_user = db.query(User).filter(User.email == user.email).first()
-    if db_user:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-                            detail="Email already registered")
-    hashed_pw = services.hash_password(user.password)
-    new_user = User(email=user.email, hashed_password=hashed_pw)
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-    return UserResponse(id=new_user.id, email=new_user.email)
 
-# Thêm các endpoint khác như login, ...
+@router.post("/register", response_model=dict, status_code=status.HTTP_201_CREATED)
+def create_user(user: User):
+    try:
+        authen = injector.get(Authentication)
+        return authen.register(user)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=f"Register failed: {str(e)}"
+        )
+
+
+@router.post("/login", response_model=dict, status_code=status.HTTP_200_OK)
+def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
+    try:
+        authen = injector.get(Authentication)
+        result, success = authen.login(
+            User(email=form_data.username, password=form_data.password)
+        )
+        if success:
+            return result
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail=result.get("error", "Login failed"),
+            )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Login failed: {str(e)}"
+        )
+    

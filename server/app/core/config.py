@@ -7,7 +7,7 @@ load_dotenv()  # Tải các biến từ .env
 class Config:
     PROJECT_NAME: str = "E-Commerce API"
     API_V1_STR: str = "/api"
-    DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./test.db")
+    DATABASE_URL: str = os.getenv("POSTGRES_URL", "sqlite:///./test.db")
     SECRET_KEY: str = os.getenv("SECRET_KEY", "your-secret-key")
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
@@ -23,3 +23,6 @@ class Config:
     LLM_MODEL: str = os.getenv("LLM_MODEL", "gpt-3.5-turbo")
     LLM_API_KEY: str = os.getenv("LLM_API_KEY")
     LLM_TEMPERATURE: float = float(os.getenv("LLM_TEMPERATURE", 0.7))
+
+    # Authentication
+    SECRET_KEY: str = os.getenv("SECRET_KEY")

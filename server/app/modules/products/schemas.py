@@ -3,7 +3,7 @@ from typing import Optional
 from datetime import datetime
 
 
-class ProductResponse(BaseModel):
+class Product(BaseModel):
     id: str
     product_name: str
     price: Optional[float]

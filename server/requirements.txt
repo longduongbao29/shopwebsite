@@ -5,4 +5,8 @@ injector
 elasticsearch
 transformers
 elasticsearch-dsl
+langchain
+langchain-huggingface
 langchain-groq
+python-jose[cryptography]
+psycopg2

@@ -4,7 +4,6 @@ from elasticsearch_dsl import connections
 
 from app.core.config import Config
 from app.db.base import BaseDB
-from app.modules.chatbot.embedding.Embedding import Embedding
 from app.utils.logger import logger_setup
 
 logger = logger_setup(__name__)
@@ -14,7 +13,7 @@ class ElasticSearch(BaseDB):
 
     @inject
     def __init__(self, config: Config):
-        super().__init__(config)
+        self.config = config
         self.client: Elasticsearch
         self.dsl_connnections:Elasticsearch
         self.index_name = self.config.ES_INDEX_NAME

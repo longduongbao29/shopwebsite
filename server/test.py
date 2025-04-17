@@ -1,7 +1,7 @@
 from app.core.config import Config
 from app.modules.products.models import ProductDocument, Category, Size
 from app.db.ElasticSearch import ElasticSearch
-from server.app.modules.chatbot.embedding.Embedding import Embedding
+from app.modules.chatbot.embedding.Embedding import Embedding
 
 
 es = ElasticSearch(config=Config())

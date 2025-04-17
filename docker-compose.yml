@@ -3,7 +3,7 @@ services:
     image: webshop:latest
     container_name: webshop-ui
     ports:
-      - "8000:3000"
+      - 8000:3000
     restart: unless-stopped
     depends_on:
       - server
@@ -14,7 +14,7 @@ services:
     image: server:latest
     container_name: mock-server
     ports:
-      - "8001:3001"
+      - 8001:3001
     restart: unless-stopped
     depends_on:
       - pg_db
@@ -27,13 +27,12 @@ services:
     image: postgres:latest
     container_name: buymeshop-postgres-db
     ports:
-      - "5432:5432"
+      - 5432:5432
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_URL: ${POSTGRES_URL}
     volumes:
       - ./db_data:/var/lib/postgresql/data
     networks:
@@ -43,7 +42,8 @@ services:
     restart: always
     ports:
       - 8080:8080
-
+    networks:
+      - buymeshop-network
 networks:
   buymeshop-network:
     driver: bridge
