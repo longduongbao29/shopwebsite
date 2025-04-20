@@ -1,8 +1,12 @@
-from uuid import uuid4
 from elasticsearch_dsl import Document, Text, Keyword, Float, Integer, Date
 from enum import Enum
 from datetime import datetime
+from numpy import average
 import pytz
+from sqlalchemy.ext.declarative import declarative_base
+
+from app.db.PosgreSQL import EngineSingleton
+from app.core.dependencies import injector
 
 
 class Category(str, Enum):
@@ -41,6 +45,8 @@ class ProductDocument(Document):
     size = Keyword(multi=True)
     color = Keyword(multi=True)
     stock = Integer()
+    average_rating = Float()
+    total_rating = Integer()
     original = Keyword()
     created_at = Date()
     updated_at = Date()
@@ -64,6 +70,8 @@ class ProductDocument(Document):
             color=product.color,
             stock=product.stock,
             original=product.original,
+            average_rating=product.average_rating,
+            total_rating=product.total_rating,
             created_at=product.created_at,
             updated_at=product.updated_at,
         )
@@ -78,11 +86,12 @@ class ProductDocument(Document):
 
 
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, Float, DateTime, JSON, ARRAY
-from app.db.PosgreSQL import PosgreSQL
+from sqlalchemy import Column, Integer, String, Float, DateTime, ARRAY
+
+Base = declarative_base()
 
 
-class Product(PosgreSQL.Base):
+class Product(Base):
     __tablename__ = "products"
 
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)
@@ -95,6 +104,30 @@ class Product(PosgreSQL.Base):
     size = Column(ARRAY(String), nullable=True, default=list)
     color = Column(ARRAY(String), nullable=True, default=list)
     stock = Column(Integer, nullable=False, default=0)
+    average_rating = Column(Float, nullable=True, default=0.0)
+    total_rating = Column(Integer, nullable=True, default=0)
     original = Column(String, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(
+        DateTime, default=lambda: datetime.now(pytz.timezone("Asia/Ho_Chi_Minh"))
+    )
+    updated_at = Column(
+        DateTime,
+        default=lambda: datetime.now(pytz.timezone("Asia/Ho_Chi_Minh")),
+        onupdate=lambda: datetime.now(pytz.timezone("Asia/Ho_Chi_Minh")),
+    )
+
+
+class Ratings(Base):
+    __tablename__ = "ratings"
+
+    id = Column(Integer, primary_key=True, autoincrement=True, index=True)
+    product_id = Column(Integer, nullable=False)
+    user_id = Column(Integer, nullable=False)
+    rating = Column(Float, nullable=False)
+    comment = Column(String, nullable=True)
+    created_at = Column(
+        DateTime, default=lambda: datetime.now(pytz.timezone("Asia/Ho_Chi_Minh"))
+    )
+
+
+Base.metadata.create_all(bind=injector.get(EngineSingleton)._engine)

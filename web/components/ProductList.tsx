@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ShoppingCartIcon } from "lucide-react"; // Hoặc bất kỳ icon nào bạn dùng
 import React from "react";
 import { Product } from "@/schemas/product";
+import { RatingStars } from "@/components/Rating";
 
 interface ProductListProps {
     products: Product[];
@@ -19,8 +20,16 @@ const ProductList: React.FC<ProductListProps> = ({ products, handleAddToCart, ac
             </div>
         );
     }
+    if (!products) {
+        return (
+            <div className="flex items-center justify-center mt-48 text-center text-gray-500">
+                No products available.
+            </div>
+        );
+    }
     return (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+
             {products.length > 0 ? (
                 products.map((product) => (
                     <Link
@@ -33,15 +42,18 @@ const ProductList: React.FC<ProductListProps> = ({ products, handleAddToCart, ac
                             <div className="w-full aspect-[4/3] relative">
                                 <img
                                     src={product.image}
-                                    alt={product.name}
-                                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                    alt={product.product_name}
+                                    className="absolute inset-0 w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
                                 />
                             </div>
                             <div className="p-4 flex-1 flex flex-col justify-between">
                                 <h4 className="text-lg font-bold text-gray-700 mb-2 line-clamp-2">
-                                    {product.name}
+                                    {product.product_name}
                                 </h4>
-
+                                <RatingStars rating={product.average_rating} size={15} />
+                                <div className="text-sm text-gray-500 flex items-center">
+                                    <span className="ml-1">{product.total_rating} đánh giá</span>
+                                </div>
                                 <div className="flex flex-col items-center justify-center gap-2 sm:flex-row sm:items-center sm:justify-between mt-2">
                                     <p className="text-blue-600 font-semibold text-lg">
                                         {product.price.toLocaleString()} đ

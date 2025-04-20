@@ -1,12 +1,13 @@
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
-
+from sqlalchemy.ext.declarative import declarative_base
 from app.core.dependencies import injector
+from app.db.PosgreSQL import EngineSingleton
 
-from app.db.PosgreSQL import PosgreSQL
+Base = declarative_base()
 
 
-class User(PosgreSQL.Base):
+class User(Base):
     __tablename__ = "users"
     user_id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     role = Column(String, nullable=False)
@@ -17,7 +18,7 @@ class User(PosgreSQL.Base):
     )
 
 
-class UserInfo(PosgreSQL.Base):
+class UserInfo(Base):
     __tablename__ = "user_infos"
 
     user_id = Column(Integer, ForeignKey("users.user_id"), primary_key=True, index=True)
@@ -26,8 +27,7 @@ class UserInfo(PosgreSQL.Base):
     address = Column(String, nullable=True)
     email = Column(String, unique=True, index=True, nullable=False)
     phone_number = Column(String, nullable=True)
-
     user = relationship("User", back_populates="info")
 
 
-
+Base.metadata.create_all(bind=injector.get(EngineSingleton)._engine)

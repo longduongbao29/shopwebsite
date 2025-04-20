@@ -17,7 +17,8 @@ export default function HomePage() {
     // Fetch product list
     getProducts()
       .then((data) => {
-        setProducts(data.products);
+
+        setProducts(data);
       })
       .catch((err) => {
         console.error("Lỗi lấy sản phẩm:", err.message);

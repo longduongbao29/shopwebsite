@@ -29,15 +29,24 @@ export default function OrderPage({ id }: { id: string }) {
   async function fetchCart() {
     let storedCart: Product[];
     if (id!=undefined) {
-      const product = (await getProductById(id)).product;
+      const product = await getProductById(id);
       storedCart = [{
         id: product.id,
-        name: product.name,
+        product_name: product.product_name,
         description: product.description,
         price: product.price,
         image: product.image,
-        quantity: 1
-      }]
+        stock: 1,
+        category: product.category || [],
+        brand: product.brand || "",
+        size: product.size || [],
+        color: product.color || [],
+        average_rating: product.average_rating || 0,
+        total_rating: product.total_rating || 0,
+        original: product.original || "",
+        created_at: product.created_at || null,
+        updated_at: product.updated_at || null,
+      }];
     } else {
       storedCart = JSON.parse(localStorage.getItem("cart") || "[]");
       console.log(storedCart);
@@ -51,7 +60,7 @@ export default function OrderPage({ id }: { id: string }) {
 
   // Tính tổng tiền dựa trên orderItems
   const totalAmount = orderItems.reduce(
-    (total, item) => total + item.price * item.quantity,
+    (total, item) => total + item.price * item.stock,
     0
   );
 
@@ -264,17 +273,17 @@ export default function OrderPage({ id }: { id: string }) {
                   <div className="flex items-center space-x-3">
                     <img
                       src={item.image}
-                      alt={item.name}
+                      alt={String(item.stock)}
                       className="w-8 h-8 object-cover rounded-md"
                     />
-                    <span className="text-gray-700 text-sm">{item.name}</span>
+                    <span className="text-gray-700 text-sm">{item.product_name}</span>
                   </div>
                   <div className="grid grid-cols-2 gap-2 text-right">
                     <span className="text-gray-500 text-xs">
-                      {item.quantity} x {item.price.toLocaleString()} đ
+                      {item.stock} x {item.price.toLocaleString()} đ
                     </span>
                     <span className="font-semibold text-gray-900 text-sm">
-                      {(item.quantity * item.price).toLocaleString()} đ
+                      {(item.stock * item.price).toLocaleString()} đ
                     </span>
                   </div>
                 </div>

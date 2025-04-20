@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { seachProducts } from "@/lib/api"; // import từ module API
+import { searchProducts } from "@/lib/api"; // import từ module API
 import { toast, ToastContainer } from 'react-toastify'; // Import toastify
 import ProductList from "@/components/ProductList";
 import { Product } from "@/schemas/product";
@@ -16,12 +16,15 @@ export default function HomePage() {
     const [loading, setLoading] = useState(false); // Trạng thái loading
     const searchParams = useSearchParams();
     const query = searchParams.get("query") || "";
+    const min_price = parseInt(searchParams.get("min_price") || "0");
+    const max_price = parseInt(searchParams.get("max_price") || "1000000000");
+    const category = searchParams.get("category") ? [searchParams.get("category") as string] : [];
 
     useEffect(() => {
         setMounted(true);
         setLoading(true); // Bắt đầu tìm kiếm, set loading = true
 
-        seachProducts(query)
+        searchProducts(query, category, min_price, max_price)
             .then((data) => {
                 setProducts(data);
                 setLoading(false); // Kết thúc tìm kiếm, set loading = false

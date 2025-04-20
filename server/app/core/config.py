@@ -1,8 +1,4 @@
 import os
-from dotenv import load_dotenv
-
-load_dotenv()  # Tải các biến từ .env
-
 
 class Config:
     PROJECT_NAME: str = "E-Commerce API"

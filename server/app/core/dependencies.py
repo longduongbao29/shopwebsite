@@ -3,9 +3,7 @@ from injector import Injector, Module, singleton
 from app.core.config import Config
 
 from app.db.ElasticSearch import ElasticSearch
-from app.modules.chatbot.embedding.Embedding import Embedding
-from app.modules.products.ProductManager import ProductManager
-from app.db.PosgreSQL import PosgreSQL
+from app.db.PosgreSQL import EngineSingleton, PosgreSQL
 
 
 class Dependency(Module):
@@ -14,16 +12,10 @@ class Dependency(Module):
         config = Config()
         elastic_search = ElasticSearch(config)
         posgresql = PosgreSQL(config)
-        embedding = Embedding(config)
 
         binder.bind(Config, to=config, scope=singleton)
-        binder.bind(Embedding, to=embedding)
         binder.bind(ElasticSearch, to=elastic_search)
-        binder.bind(
-            ProductManager,
-            to=ProductManager(embedding=embedding, es=elastic_search, pg=posgresql),
-        )
         binder.bind(PosgreSQL, to=posgresql)
-
+        binder.bind(EngineSingleton, to = EngineSingleton(config))
 
 injector = Injector(Dependency)

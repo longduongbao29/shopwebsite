@@ -7,16 +7,24 @@ import { useRouter } from "next/navigation";
 
 export default function Header() {
     const [mounted, setMounted] = useState(false);
-    const [user, setUser] = useState<{ name: string } | null>(null);
+    const [user, setUser] = useState<object | null>(null);
     const [isMenuOpen, setIsMenuOpen] = useState(false);  // Trạng thái của menu hamburger
     const [searchText, setSearchText] = useState(""); // 🆕 Thêm state cho ô tìm kiếm
     const router = useRouter();
 
     useEffect(() => {
         setMounted(true);
-        const storedUser = localStorage.getItem("user");
-        if (storedUser) {
-            setUser(JSON.parse(storedUser));
+        const storedToken = localStorage.getItem("token");
+        if (storedToken) {
+            try {
+                const decodedToken = JSON.parse(atob(storedToken.split('.')[1]));
+                console.log("Decoded token:", decodedToken);
+                
+            setUser(decodedToken);
+            } catch (error) {
+                console.error("Failed to decode token:", error);
+            setUser(null);
+            }
         }
     }, []);
 
@@ -35,6 +43,7 @@ export default function Header() {
     const handleLogout = () => {
         setIsMenuOpen(false);
         localStorage.removeItem("user");
+        localStorage.removeItem("token");
         setUser(null);
         router.refresh();
     };
@@ -114,7 +123,7 @@ export default function Header() {
                             {/* Thẻ thông tin user */}
                             <div className="flex items-center space-x-2 px-3 py-2 bg-white/80 rounded-full shadow-sm">
                                 <UserCircle className="w-6 h-6 text-blue-600" />
-                                <span className="text-gray-800 font-semibold">{user.name}</span>
+                                <span className="text-gray-800 font-semibold">{user.email}</span>
                                 <button
                                     onClick={handleLogout}
                                 >
@@ -163,7 +172,7 @@ export default function Header() {
                             <>
                                 <div className="flex items-center space-x-2 text-gray-700 font-medium">
                                     <UserCircle className="w-5 h-5 text-blue-600" />
-                                    <span>{user.name}</span>
+                                    <span>{user.email}</span>
                                 </div>
                                 <button
                                     onClick={handleLogout}

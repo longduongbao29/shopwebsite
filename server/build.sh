@@ -1,0 +1,1 @@
+docker build -t buymeshop_backend .

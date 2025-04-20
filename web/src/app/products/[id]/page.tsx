@@ -1,4 +1,4 @@
-import { getProductById } from "@/lib/api";
+import { getProductById, getRatingbyProductId } from "@/lib/api";
 import { RatingStars } from "@/components/Rating";
 import { ToastContainer } from "react-toastify";
 import AddToCartButton from "@/components/AddToCartButton";
@@ -10,20 +10,10 @@ type Params = Promise<{ id: string }>;
 export default async function ProductPage({ params }: { params: Params }) {
     const { id } = await params;
     const data = await getProductById(id);
-    const product = data.product;
+    const product = data;
 
-    const comments = [
-        {
-            name: "Nguyễn Văn A",
-            content: "Sản phẩm rất tốt, giao hàng nhanh chóng!",
-            date: "2025-04-10",
-        },
-        {
-            name: "Trần Thị B",
-            content: "Chất lượng vượt mong đợi, sẽ ủng hộ lần sau!",
-            date: "2025-04-09",
-        },
-    ];
+    const commentsData = await getRatingbyProductId(id);
+    const comments: { user_name: string; created_at: string; comment: string; rating: number }[] = Array.isArray(commentsData) ? commentsData : [];
 
     return (
         <div className="min-h-screen bg-gray-100 py-10 px-4 sm:px-6 lg:px-8">
@@ -39,42 +29,64 @@ export default async function ProductPage({ params }: { params: Params }) {
                 {/* Product Section */}
                 <div className="bg-white rounded-2xl shadow-lg overflow-hidden lg:flex">
                     {/* Image */}
-                    <div className="lg:w-1/2 h-72 sm:h-96 lg:h-auto">
+                    <div className="lg:w-1/3 aspect-w-1 aspect-h-1">
                         <img
                             src={product.image}
-                            alt={product.name}
-                            className="w-full h-full object-cover"
+                            alt={product.product_name}
+                            className="w-full h-full object-contain"
                         />
                     </div>
 
                     {/* Product Info */}
-                    <div className="lg:w-1/2 p-8 relative flex flex-col justify-between gap-6">
-                        <div className="space-y-4">
-                            <h1 className="text-3xl font-bold text-gray-900">{product.name}</h1>
-                            <RatingStars rating={product.rating} />
-                            <p className="text-lg text-gray-600 leading-relaxed">
-                                {product.description}
-                            </p>
+                    <div className="lg:w-2/3 p-6 relative flex flex-col justify-between gap-4">
+                        <div className="space-y-3">
+                            <h1 className="text-2xl font-bold text-gray-900">{product.product_name}</h1>
+                            <div className="flex items-center gap-8 mt-2">
+                                <RatingStars rating={product.average_rating} />
+                                <span className="text-gray-700 text-sm">{product.total_rating} đánh giá</span>
+                            </div>
+                            <div className="space-y-3 text-sm text-gray-700">
+                                <div className="flex items-center">
+                                    <span className="font-semibold w-28">Thương hiệu:</span>
+                                    <span>{product.brand}</span>
+                                </div>
+                                <div className="flex items-center">
+                                    <span className="font-semibold w-28">Danh mục:</span>
+                                    <span>{product.category.join(", ")}</span>
+                                </div>
+                                <div className="flex items-center">
+                                    <span className="font-semibold w-28">Kích thước:</span>
+                                    <span>{product.size.join(", ")}</span>
+                                </div>
+                                <div className="flex items-center">
+                                    <span className="font-semibold w-28">Màu sắc:</span>
+                                    <span>{product.color.join(", ")}</span>
+                                </div>
+                                <div className="flex items-center">
+                                    <span className="font-semibold w-28">Tồn kho:</span>
+                                    <span>{product.stock > 0 ? `${product.stock} sản phẩm` : "Hết hàng"}</span>
+                                </div>
+                            </div>
                         </div>
 
                         {/* Mobile view: Price, Mua Ngay & AddToCartButton */}
-                        <div className="flex flex-col gap-3 lg:hidden mt-6">
-                            <span className="flex text-2xl justify-center font-bold text-blue-600">
+                        <div className="flex flex-col gap-2 lg:hidden mt-4">
+                            <span className="flex text-xl justify-center font-bold text-blue-600">
                                 {product.price.toLocaleString()} đ
                             </span>
-                            <div className="flex justify-center gap-3">
+                            <div className="flex justify-center gap-2">
                                 <BuyNowButton product={product} />
                                 <AddToCartButton product={product} />
                             </div>
                         </div>
 
                         {/* Desktop view: Price */}
-                        <div className="hidden lg:block text-3xl font-bold text-blue-600 mt-6">
+                        <div className="hidden lg:block text-2xl font-bold text-blue-600 mt-4">
                             {product.price.toLocaleString()} đ
                         </div>
 
                         {/* Desktop view: Fixed buttons at bottom right (Mua Ngay & AddToCartButton) */}
-                        <div className="hidden lg:flex absolute bottom-8 right-8 gap-3">
+                        <div className="hidden lg:flex absolute bottom-6 right-6 gap-2">
                             <BuyNowButton product={product} />
                             <AddToCartButton product={product} />
                         </div>
@@ -86,13 +98,10 @@ export default async function ProductPage({ params }: { params: Params }) {
                     <h2 className="text-2xl font-bold text-gray-800 mb-4">Mô tả chi tiết</h2>
                     <div className="text-gray-700 space-y-4 leading-relaxed">
                         <p>
-                            {product.longDescription ||
+                            {product.description ||
                                 "Đây là phần mô tả chi tiết sản phẩm, có thể dài nhiều đoạn và hỗ trợ định dạng văn bản nếu dùng CMS như Sanity, Strapi hoặc Markdown HTML."}
                         </p>
-                        <p>
-                            Sản phẩm được thiết kế với chất liệu cao cấp, phù hợp với nhu cầu sử dụng hằng ngày
-                            cũng như chuyên nghiệp. Bảo hành 12 tháng và hỗ trợ đổi trả trong vòng 7 ngày.
-                        </p>
+
                     </div>
                 </div>
 
@@ -102,9 +111,21 @@ export default async function ProductPage({ params }: { params: Params }) {
                     <div className="space-y-6">
                         {comments.map((comment, index) => (
                             <div key={index} className="border-b pb-4">
-                                <div className="font-semibold text-gray-900">{comment.name}</div>
-                                <div className="text-sm text-gray-500">{comment.date}</div>
-                                <p className="mt-2 text-gray-700">{comment.content}</p>
+                                <div className="flex items-center gap-2">
+                                    <div className="font-semibold text-gray-900">{comment.user_name}</div>
+                                    <RatingStars rating={comment.rating} size={15}/>
+                                </div>
+
+                                <div className="text-xs text-gray-500">
+                                    {new Date(comment.created_at).toLocaleString("vi-VN", {
+                                        day: "2-digit",
+                                        month: "2-digit",
+                                        year: "numeric",
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                    })}
+                                </div>
+                                <p className="mt-2 text-gray-700">{comment.comment}</p>
                             </div>
                         ))}
                     </div>

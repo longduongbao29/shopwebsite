@@ -1,4 +1,5 @@
 fastapi
+uvicorn
 passlib
 sqlalchemy
 injector 
@@ -10,3 +11,5 @@ langchain-huggingface
 langchain-groq
 python-jose[cryptography]
 psycopg2
+pytz
+python-multipart

@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { sendChatRequest, ChatMessage , randomMessage, Behavior, analyzeBehavior} from "@/lib/api";
+import { sendChatRequest, ChatMessage , randomMessage, Behavior} from "@/lib/api";
 import { useRef } from "react";
 import { useRouter } from "next/navigation";
 export default function BotAssistant() {
@@ -73,12 +73,11 @@ export default function BotAssistant() {
         setMessage("");
 
         try {
-            const [result, behavior] = await Promise.all([
+            const [result] = await Promise.all([
                 sendChatRequest(updatedHistory),
-                analyzeBehavior(message.trim())
             ]);
             setChatHistory((prevHistory) => [...prevHistory, result]);
-            doAction(behavior)
+            // doAction(behavior)
 
         } catch (error) {
             console.error("Error while sending chat request:", error);

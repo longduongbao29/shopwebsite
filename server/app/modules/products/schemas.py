@@ -24,3 +24,31 @@ class Product(BaseModel):
 
 class ProductResponse(Product):
     id: int
+    average_rating: float
+    total_rating: int
+
+class ProductRating(BaseModel):
+    product_id: int
+    rating: float
+    comment: Optional[str]
+    created_at: Optional[datetime]
+
+    class Config:
+        validate_by_name = True
+        from_attributes = True
+
+class ProductRatingResponse(ProductRating):
+    id: int
+    user_id: int
+    user_name: str = None
+
+class SearchProduct(BaseModel):
+    query: Optional[str] = None
+    categories: Optional[list[str]] = None
+    min_price: float = 0
+    max_price: float = 1e10
+
+    class Config:
+        validate_by_name = True
+        from_attributes = True
+     

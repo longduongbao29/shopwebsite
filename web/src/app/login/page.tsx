@@ -1,9 +1,9 @@
 "use client";
-
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Mail, Lock } from "lucide-react";
 import { loginUser } from "@/lib/api";
+
 
 export default function LoginPage() {
     const [mounted, setMounted] = useState(false);
@@ -22,7 +22,6 @@ export default function LoginPage() {
         e.preventDefault();
         try {
             const response = await loginUser(email, password);
-            localStorage.setItem("user", JSON.stringify(response.user));
             window.location.href = "/";;
             router.push("/");
         } catch (err) {

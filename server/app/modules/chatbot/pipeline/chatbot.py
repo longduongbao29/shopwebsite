@@ -3,7 +3,7 @@ from injector import inject
 from langchain_groq import ChatGroq
 from app.core.config import Config
 from app.modules.products.ProductManager import ProductManager
-from app.modules.chatbot.pipeline.prompts import CHAT_PROMPT, TOOL_PROMPT
+from app.modules.chatbot.pipeline.prompts import CHAT_PROMPT, TOOL_PROMPT, random_prompt
 from app.utils.logger import logger_setup
 from app.utils.tools.datetime import getCurrentTimeTool
 
@@ -52,3 +52,7 @@ class Chatbot:
         return (CHAT_PROMPT | self.llm).invoke(
             {"context": context, "user_input": input}
         ).content, meta_data
+
+    def gen_random_chat(self):
+        result = self.llm.invoke(random_prompt)
+        return result.content, None

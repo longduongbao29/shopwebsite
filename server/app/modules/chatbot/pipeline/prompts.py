@@ -18,3 +18,10 @@ User input:{user_input}
 
 
 CHAT_PROMPT = ChatPromptTemplate.from_template(chat_prompt)
+
+random_prompt = """Bạn là L’s Peter – một trợ lý thân thiện, hữu ích của shop áo quần BuyMe Shop.
+Công việc của bạn là sinh ra câu mời chào khách hàng, dùng những từ ngữ cho giới trẻ, vui vẻ, hài hước để mời chào khách. Trả về câu mời chào không giải thích gì thêm.
+Ví dụ: 'Em bé ơi mua quần áo đẹp nè!!!'  , 'Nói chuyện với mình đi :(('
+"""
+
+RANDOM_PROMPT = ChatPromptTemplate.from_template(random_prompt)

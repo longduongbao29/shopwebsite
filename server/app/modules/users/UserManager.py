@@ -24,14 +24,14 @@ class UserManager:
 
     def get_by_id(self, user_id: str):
         try:
-            return self.sql_db.get_by_field(User, "user_id", user_id).first()
+            return self.sql_db.get_by_field(User, "user_id", user_id)
         except Exception as e:
             logger.error(f"Get user by ID failed due to error: {e}")
             return None
 
     def get_by_email(self, email: str):
         try:
-            return self.sql_db.get_by_field(User, "email", email).first()
+            return self.sql_db.get_by_field(User, "email", email)
         except Exception as e:
             logger.error(f"Get user by email failed due to error: {e}")
             return None
