@@ -16,6 +16,13 @@ export interface Product {
     updated_at: Date;
 }
 
+export interface ProductOrder {
+    id: number;
+    product_name: string;
+    price: number;
+    quantity: number;
+    image: string;
+}
 export interface Rating {
     id: number;
     product_id: number;

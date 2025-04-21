@@ -6,6 +6,7 @@ from app.modules.products.ProductManager import ProductManager
 from app.modules.chatbot.pipeline.prompts import CHAT_PROMPT, TOOL_PROMPT, random_prompt
 from app.utils.logger import logger_setup
 from app.utils.tools.datetime import getCurrentTimeTool
+from app.modules.chatbot.schemas import ChatRequest
 
 
 logger = logger_setup(__name__)
@@ -29,10 +30,15 @@ class Chatbot:
         )
         self.product_manager = product_manager
 
-    def run(self, input):
+    def run(self, chat_request:ChatRequest):
 
         llm_with_tool = TOOL_PROMPT | self.llm.bind_tools(ToolPool.tools)
-        analyze = llm_with_tool.invoke(input)
+        analyze = llm_with_tool.invoke(
+            {
+                "user_input": chat_request.input,
+                "chat_history": chat_request.chat_history,
+            }
+        )
         context = ""
         meta_data = {}
         if "tool_calls" in analyze.additional_kwargs:
@@ -50,7 +56,7 @@ class Chatbot:
                 meta_data[name] = {"args": args, "reaslut": tool_result}
                 context += str(tool_result)
         return (CHAT_PROMPT | self.llm).invoke(
-            {"context": context, "user_input": input}
+            {"context": context, "user_input": chat_request.input, "chat_history": chat_request.chat_history}
         ).content, meta_data
 
     def gen_random_chat(self):

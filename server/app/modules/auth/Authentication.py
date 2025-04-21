@@ -6,10 +6,9 @@ from datetime import datetime, timedelta
 from fastapi.security import OAuth2PasswordBearer
 
 from app.db.PosgreSQL import PosgreSQL
-from app.modules.users.models import User
+from app.modules.users.models import User, UserInfo
 from app.modules.users.schemas import User as UserSchema
 from app.utils.logger import logger_setup
-from app.utils.helpers import model_to_dict
 
 from app.core.config import Config
 from app.modules.auth.Action import Action
@@ -91,8 +90,18 @@ class Authentication:
                 "role": "user",
                 "hashed_password": hashed_password,
             }
-            self.sql_db.create(User, new_user)
-
+            new_user = self.sql_db.create(User, new_user)
+            self.sql_db.create(
+                UserInfo,
+                {
+                    "user_id": new_user.user_id,
+                    "first_name": "Undefined",
+                    "last_name": "Undefined",
+                    "email": user.email,
+                    "phone_number": "Undefined",
+                    "address": "Undefined",
+                },
+            )
             logger.info(f"User with email {user.email} registered successfully.")
         except Exception as e:
             logger.info(f"Regist failed due to error: {e}")
@@ -102,19 +111,35 @@ class Authentication:
     def login(self, user: UserSchema):
         try:
             # Step 1: Get user from DB by email
-            db_user = self.sql_db.get_by_field(User, "email", user.email).first()
+            with self.sql_db.db_context() as db:
+                db_user = (
+                    db.query(User,UserInfo)
+                    .join(UserInfo, User.user_id == UserInfo.user_id)
+                    .filter(User.email == user.email)
+                    .first()
+                )
 
             if not db_user:
                 logger.info(f"Login failed: User with email {user.email} not found.")
                 return {"error": "Invalid email or password"}, False
-
+            user_obj, user_info_obj = db_user
             # Step 2: Verify password
             if not Authentication.verify_password(
-                user.password, db_user.hashed_password
+                user.password, user_obj.hashed_password
             ):
-                logger.info(f"Login failed: Incorrect password for email {user.email}.")
+                logger.error(f"Login failed: Incorrect password for email {user.email}.")
                 return {"error": "Invalid email or password"}, False
-            token = Authentication.genToken(model_to_dict(db_user))
+
+            token_data = {
+                "user_id": user_obj.user_id,
+                "email": user_obj.email,
+                "role": user_obj.role,
+                "first_name": user_info_obj.first_name,
+                "last_name": user_info_obj.last_name,
+                "phone_number": user_info_obj.phone_number,
+                "address": user_info_obj.address,
+            }
+            token = Authentication.genToken(token_data)
             logger.info(f"User {user.email} logged in successfully.")
             return {"access_token": token, "token_type": "bearer"}, True
 

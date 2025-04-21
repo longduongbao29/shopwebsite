@@ -1,9 +1,10 @@
 "use client";
 import { useState, useEffect } from "react";
 import { FaShoppingCart } from "react-icons/fa";
-import { fetchDistricts, fetchProvinces, fetchWards, getProductById } from "@/lib/api";
+import { fetchDistricts, fetchProvinces, fetchWards } from "@/lib/map_api";
+import { getProductById } from "@/lib/product_api";
 import { Province, District, Ward } from "@/schemas/map";
-import { Product } from "@/schemas/product";
+import {  ProductOrder } from "@/schemas/product";
 
 
 export default function OrderPage({ id }: { id: string }) {
@@ -14,7 +15,7 @@ export default function OrderPage({ id }: { id: string }) {
     phone: "",
   });
   const [paymentMethod, setPaymentMethod] = useState("cash");
-  const [orderItems, setOrderItems] = useState<Product[]>([]);
+  const [orderItems, setOrderItems] = useState<ProductOrder[]>([]);
 
   // State cho các ô lựa chọn địa chỉ
   const [provinces, setProvinces] = useState<Province[]>([]);
@@ -27,29 +28,18 @@ export default function OrderPage({ id }: { id: string }) {
   
   // Load dữ liệu giỏ hàng từ localStorage khi component mount
   async function fetchCart() {
-    let storedCart: Product[];
+    let storedCart: ProductOrder[];
     if (id!=undefined) {
       const product = await getProductById(id);
       storedCart = [{
         id: product.id,
         product_name: product.product_name,
-        description: product.description,
         price: product.price,
-        image: product.image,
-        stock: 1,
-        category: product.category || [],
-        brand: product.brand || "",
-        size: product.size || [],
-        color: product.color || [],
-        average_rating: product.average_rating || 0,
-        total_rating: product.total_rating || 0,
-        original: product.original || "",
-        created_at: product.created_at || null,
-        updated_at: product.updated_at || null,
+        quantity: 1,
+        image: product.image
       }];
     } else {
       storedCart = JSON.parse(localStorage.getItem("cart") || "[]");
-      console.log(storedCart);
     }
     setOrderItems(storedCart);
     }
@@ -60,7 +50,7 @@ export default function OrderPage({ id }: { id: string }) {
 
   // Tính tổng tiền dựa trên orderItems
   const totalAmount = orderItems.reduce(
-    (total, item) => total + item.price * item.stock,
+    (total, item) => total + item.price * item.quantity,
     0
   );
 
@@ -273,17 +263,17 @@ export default function OrderPage({ id }: { id: string }) {
                   <div className="flex items-center space-x-3">
                     <img
                       src={item.image}
-                      alt={String(item.stock)}
+                      alt={String(item.quantity)}
                       className="w-8 h-8 object-cover rounded-md"
                     />
                     <span className="text-gray-700 text-sm">{item.product_name}</span>
                   </div>
                   <div className="grid grid-cols-2 gap-2 text-right">
                     <span className="text-gray-500 text-xs">
-                      {item.stock} x {item.price.toLocaleString()} đ
+                      {item.quantity} x {item.price.toLocaleString()} đ
                     </span>
                     <span className="font-semibold text-gray-900 text-sm">
-                      {(item.stock * item.price).toLocaleString()} đ
+                      {(item.quantity * item.price).toLocaleString()} đ
                     </span>
                   </div>
                 </div>

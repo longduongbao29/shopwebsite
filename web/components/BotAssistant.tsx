@@ -1,9 +1,10 @@
 "use client";
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { sendChatRequest, ChatMessage , randomMessage, Behavior} from "@/lib/api";
+import { sendChatRequest, randomMessage } from "@/lib/chatbot_api";
+import { ChatMessage } from "@/schemas/chatbot";
 import { useRef } from "react";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 export default function BotAssistant() {
     const [showMessage, setShowMessage] = useState(true);
     const [isMobile, setIsMobile] = useState(false);
@@ -13,7 +14,7 @@ export default function BotAssistant() {
     const [randMessage, setRandomMessage] = useState("Chào bạn, bạn cần giúp gì không!!!")
     const [isBotVisible, setIsBotVisible] = useState(true);
     const chatContainerRef = useRef<HTMLDivElement>(null);
-    const router = useRouter();
+    // const router = useRouter();
     if (chatContainerRef.current) {
         chatContainerRef.current.scrollTo({ top: chatContainerRef.current.scrollHeight, behavior: "smooth" });
     }
@@ -89,13 +90,13 @@ export default function BotAssistant() {
             handleSendMessage();
         }
     };
-    const doAction = (behavior: Behavior)=>{
-        const action = behavior.behavior;
-        const params = behavior.params;
-        if (action === "search" || action === "price") {
-            router.push(`/search?query=${encodeURIComponent(params)}`)
-        }
-    }
+    // const doAction = (behavior: Behavior)=>{
+    //     const action = behavior.behavior;
+    //     const params = behavior.params;
+    //     if (action === "search" || action === "price") {
+    //         router.push(`/search?query=${encodeURIComponent(params)}`)
+    //     }
+    // }
     return (
         <>
             {/* Chat Modal */}

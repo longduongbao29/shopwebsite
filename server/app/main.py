@@ -9,7 +9,7 @@ import app.db.sync
 
 app = FastAPI(
     title="E-Commerce API",
-    description="Hệ thống bán hàng e-commerce bán quần áo theo kiến trúc Modular Monolith",
+    description="Hệ thống bán hàng e-commerce bán quần áo.",
     version="1.0.0"
 )
 app.add_middleware(

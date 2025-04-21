@@ -3,7 +3,7 @@ from langchain.tools import tool
 import pytz
 
 
-@tool(name_or_callable="current_time_tool", description="Use this tool when need information about current time, current events...")
+@tool(name_or_callable="current_time_tool", description="Use this tool when need information about current time")
 def getCurrentTimeTool() -> str:
     """
     Returns the current date and time as a string. 

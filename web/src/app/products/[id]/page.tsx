@@ -1,6 +1,5 @@
-import { getProductById, getRatingbyProductId } from "@/lib/api";
+import { getProductById, getRatingbyProductId } from "@/lib/product_api";
 import { RatingStars } from "@/components/Rating";
-import { ToastContainer } from "react-toastify";
 import AddToCartButton from "@/components/AddToCartButton";
 import BuyNowButton from "@/components/BuyNowButton";
 
@@ -17,14 +16,6 @@ export default async function ProductPage({ params }: { params: Params }) {
 
     return (
         <div className="min-h-screen bg-gray-100 py-10 px-4 sm:px-6 lg:px-8">
-            {/* ToastContainer có thể được đặt ở đây hoặc trong một client component riêng */}
-            <ToastContainer
-                position="top-center"
-                autoClose={3000}
-                hideProgressBar={true}
-                newestOnTop={true}
-                pauseOnHover={false}
-            />
             <div className="max-w-6xl mx-auto space-y-10">
                 {/* Product Section */}
                 <div className="bg-white rounded-2xl shadow-lg overflow-hidden lg:flex">

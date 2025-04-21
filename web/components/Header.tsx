@@ -4,10 +4,10 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ShoppingCart, UserCircle, Home, LogOut, Menu, X } from "lucide-react";
 import { useRouter } from "next/navigation";
-
+import { UserInfo } from "@/schemas/user"; // Chỉnh lại đường dẫn nếu cần
 export default function Header() {
     const [mounted, setMounted] = useState(false);
-    const [user, setUser] = useState<object | null>(null);
+    const [user, setUser] = useState<UserInfo | null>(null);
     const [isMenuOpen, setIsMenuOpen] = useState(false);  // Trạng thái của menu hamburger
     const [searchText, setSearchText] = useState(""); // 🆕 Thêm state cho ô tìm kiếm
     const router = useRouter();
@@ -18,7 +18,6 @@ export default function Header() {
         if (storedToken) {
             try {
                 const decodedToken = JSON.parse(atob(storedToken.split('.')[1]));
-                console.log("Decoded token:", decodedToken);
                 
             setUser(decodedToken);
             } catch (error) {
@@ -26,6 +25,29 @@ export default function Header() {
             setUser(null);
             }
         }
+    }, []);
+
+    useEffect(() => {
+        const handleHeaderUpdate = () => {
+            const storedToken = localStorage.getItem("token");
+            if (storedToken) {
+                try {
+                    const decodedToken = JSON.parse(atob(storedToken.split('.')[1]));
+                    setUser(decodedToken);
+                } catch (error) {
+                    console.error("Failed to decode token:", error);
+                    setUser(null);
+                }
+            } else {
+                setUser(null);
+            }
+        };
+
+        document.addEventListener("header:update", handleHeaderUpdate);
+
+        return () => {
+            document.removeEventListener("header:update", handleHeaderUpdate);
+        };
     }, []);
 
     if (!mounted) {
@@ -44,6 +66,18 @@ export default function Header() {
         setIsMenuOpen(false);
         localStorage.removeItem("user");
         localStorage.removeItem("token");
+        import("react-toastify").then(({ toast }) => {
+            toast.success("Đăng xuất thành công!", {
+            position: "top-right",
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+            });
+        });
         setUser(null);
         router.refresh();
     };

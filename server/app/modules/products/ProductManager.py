@@ -138,7 +138,7 @@ class ProductManager:
         class ProductSearchTool(BaseTool):
             name: str = "product_search_tool"
             description: str = (
-                "Search products from BuyMe Shop. Only use if user mentions products."
+                "Search products from BuyMe Shop. Use this tool to get product infomation if user ask."
             )
             args_schema: Type[BaseModel] = ProductToolSchema
             return_direct: bool = True

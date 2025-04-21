@@ -1,6 +1,11 @@
 
 export interface UserRegister{
-    id: number;
+    email: string;
+    password: string;
+}
+
+export interface UserInfo {
+    id: string;
     name: string;
     email: string;
     phone: string;
