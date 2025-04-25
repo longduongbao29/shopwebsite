@@ -2,7 +2,7 @@ import { getProductById, getRatingbyProductId } from "@/lib/product_api";
 import { RatingStars } from "@/components/Rating";
 import AddToCartButton from "@/components/AddToCartButton";
 import BuyNowButton from "@/components/BuyNowButton";
-
+import AddCommentForm from "@/components/CommentForm";
 
 type Params = Promise<{ id: string }>;
 
@@ -18,9 +18,9 @@ export default async function ProductPage({ params }: { params: Params }) {
         <div className="min-h-screen bg-gray-100 py-10 px-4 sm:px-6 lg:px-8">
             <div className="max-w-6xl mx-auto space-y-10">
                 {/* Product Section */}
-                <div className="bg-white rounded-2xl shadow-lg overflow-hidden lg:flex">
-                    {/* Image */}
-                    <div className="lg:w-1/3 aspect-w-1 aspect-h-1">
+                <div className="bg-white rounded-2xl shadow-lg overflow-hidden flex flex-col sm:flex-row gap-4">
+
+                    <div className="w-full sm:w-1/2 aspect-square flex items-center justify-center bg-gray-50">
                         <img
                             src={product.image}
                             alt={product.product_name}
@@ -29,7 +29,7 @@ export default async function ProductPage({ params }: { params: Params }) {
                     </div>
 
                     {/* Product Info */}
-                    <div className="lg:w-2/3 p-6 relative flex flex-col justify-between gap-4">
+                    <div className="w-full sm:w-1/2 p-4 relative flex flex-col justify-between gap-4">
                         <div className="space-y-3">
                             <h1 className="text-2xl font-bold text-gray-900">{product.product_name}</h1>
                             <div className="flex items-center gap-8 mt-2">
@@ -95,8 +95,7 @@ export default async function ProductPage({ params }: { params: Params }) {
 
                     </div>
                 </div>
-
-                {/* Comments */}
+                {/* Comments Section */}
                 <div className="bg-white p-6 rounded-2xl shadow-md">
                     <h2 className="text-2xl font-bold text-gray-800 mb-4">Bình luận</h2>
                     <div className="space-y-6">
@@ -104,9 +103,8 @@ export default async function ProductPage({ params }: { params: Params }) {
                             <div key={index} className="border-b pb-4">
                                 <div className="flex items-center gap-2">
                                     <div className="font-semibold text-gray-900">{comment.user_name}</div>
-                                    <RatingStars rating={comment.rating} size={15}/>
+                                    <RatingStars rating={comment.rating} size={15} />
                                 </div>
-
                                 <div className="text-xs text-gray-500">
                                     {new Date(comment.created_at).toLocaleString("vi-VN", {
                                         day: "2-digit",
@@ -120,7 +118,11 @@ export default async function ProductPage({ params }: { params: Params }) {
                             </div>
                         ))}
                     </div>
+
+                    {/* Thêm bình luận */}
+                    <AddCommentForm productId={product.id} />
                 </div>
+
             </div>
         </div>
     );

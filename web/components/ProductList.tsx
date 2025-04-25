@@ -50,7 +50,7 @@ const ProductList: React.FC<ProductListProps> = ({ products, handleAddToCart, ac
                                 <h4 className="text-lg font-bold text-gray-700 mb-2 line-clamp-2">
                                     {product.product_name}
                                 </h4>
-                                <RatingStars rating={product.average_rating} size={15} />
+                                <RatingStars rating={product.average_rating} size={10} />
                                 <div className="text-sm text-gray-500 flex items-center">
                                     <span className="ml-1">{product.total_rating} đánh giá</span>
                                 </div>
