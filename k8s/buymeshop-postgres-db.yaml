@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pg-db
+  labels:
+    app: pg-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pg-db
+  template:
+    metadata:
+      labels:
+        app: pg-db
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5432
+        env:
+        - name: POSTGRES_USER
+          valueFrom:
+            configMapKeyRef:
+              name: buymeshop-env
+              key: POSTGRES_USER
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              name: buymeshop-env
+              key: POSTGRES_PASSWORD
+        - name: POSTGRES_DB
+          valueFrom:
+            configMapKeyRef:
+              name: buymeshop-env
+              key: POSTGRES_DB
+        volumeMounts:
+        - name: db-data
+          mountPath: /var/lib/postgresql/data
+      volumes:
+      - name: db-data
+        hostPath:
+          path: /home/ubuntu/longdb/shopwebsite/db_data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pg-db
+spec:
+  type: ClusterIP
+  ports:
+  - port: 5432
+    targetPort: 5432
+  selector:
+    app:  pg-db

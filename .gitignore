@@ -12,6 +12,7 @@ yarn-error.log*
 # Local environment files
 .env
 .env.local
+k8s/buymeshop-env-configmap.yaml
 
 # Editors & IDEs
 .DS_Store
