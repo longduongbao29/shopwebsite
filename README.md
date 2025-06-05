@@ -1,4 +1,4 @@
-# Shop Website Monorepo
+# BUY ME SHOP
 
 This repository contains a full-stack e-commerce application, including a web frontend, Android mobile app, and backend server. The project is organized as a monorepo with separate folders for each part of the stack.
 
@@ -7,7 +7,7 @@ This repository contains a full-stack e-commerce application, including a web fr
 ```
 .
 ├── android-app/   # React Native Android application
-├── server/        # Node.js/Express backend server
+├── server/        # Python FastAPI
 ├── web/           # Next.js web frontend
 ├── docker-compose.yml
 ├── run.sh
@@ -47,7 +47,7 @@ This repository contains a full-stack e-commerce application, including a web fr
 ---
 
 ## 3. Backend Server (`server/`)
-- **Framework:** Node.js (Express)
+- **Framework:** Python (FastAPI)
 - **Features:**
   - REST API for products, users, orders
   - Uses `db.json` for mock data (can be replaced with a real database)
