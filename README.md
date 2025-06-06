@@ -1,6 +1,7 @@
 # BUY ME SHOP
 
 This repository contains a full-stack e-commerce application, including a web frontend, Android mobile app, and backend server. The project is organized as a monorepo with separate folders for each part of the stack.
+![image](https://github.com/user-attachments/assets/84a34ad2-922f-476f-ac8c-7b909ba37698)
 
 ## Project Structure
 
