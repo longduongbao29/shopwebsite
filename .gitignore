@@ -3,7 +3,7 @@ node_modules/
 
 # Vite build output
 dist/
-db_data/
+pg_data/
 esdatadir/
 kibanadata/
 # Logs

@@ -10,7 +10,7 @@ RUN npm ci
 
 # 4. Copy source code (sau khi npm ci xong để tránh cache lỗi)
 COPY . .
-COPY .env.development .env.production
+# COPY .env.development .env.production
 # 5. Build Next.js
 RUN npm run build
 

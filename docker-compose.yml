@@ -1,9 +1,9 @@
 services:
   web:
     image: webshop:latest
-    container_name: webshop-ui
+    container_name: buymeshop-webui
     ports:
-      - 8000:3000
+      - 8081:3000
     restart: unless-stopped
     depends_on:
       - server
@@ -20,15 +20,17 @@ services:
       - ./logs:/src/logs
       - ./certs:/src/certs
     depends_on:
-      - pg_db
+      pg_db:
+        condition: service_healthy
     networks:
       - buymeshop-network
     env_file:
       - .env
-
+    
   pg_db:
     image: postgres:latest
     container_name: buymeshop-postgres-db
+    user: "1000:1000"
     ports:
       - 5432:5432
     restart: unless-stopped
@@ -36,15 +38,23 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
+      PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
-      - ./db_data:/var/lib/postgresql/data
+      - ./pg_data:/var/lib/postgresql/data
     networks:
       - buymeshop-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
   adminer:
     image: adminer
+    container_name: buymeshop-adminer
     restart: always
     ports:
-      - 8080:8080
+      - 8088:8080
     networks:
       - buymeshop-network
   setup:
@@ -99,6 +109,7 @@ services:
       - buymeshop-network
 
   es01:
+    container_name: buymeshop-elasticsearch
     depends_on:
       setup:
         condition: service_healthy
@@ -145,6 +156,7 @@ services:
     networks:
       - buymeshop-network
   kibana:
+    container_name: buymeshop-kibana
     depends_on:
       es01:
         condition: service_healthy
@@ -174,6 +186,15 @@ services:
     networks:
       - buymeshop-network
 
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: buymeshop-cloudflared
+    environment:
+      - TUNNEL_TOKEN=${TUNNEL_TOKEN}
+    restart: unless-stopped
+    command: tunnel run
+    networks:
+    - buymeshop-network
 
 networks:
   buymeshop-network:
