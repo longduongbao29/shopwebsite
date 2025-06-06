@@ -1,9 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
-import { getProducts } from "@/lib/api"; // import từ module API
-import { toast, ToastContainer } from 'react-toastify'; // Import toastify
+import { getProducts } from "@/lib/product_api"; // import từ module API
 import ProductList from "@/components/ProductList";
 import { Product } from "@/schemas/product";
+import { toast } from "react-toastify";
 
 export default function HomePage() {
   const [activeProductId, setActiveProductId] = useState<number | null>(null);
@@ -12,16 +12,13 @@ export default function HomePage() {
 
   // Đọc user và danh sách sản phẩm từ API
   useEffect(() => {
-    setMounted(true);
+    const fetchData = async () => {
+      setMounted(true);
+      const data = await getProducts();
+      setProducts(data);
+    };
 
-    // Fetch product list
-    getProducts()
-      .then((data) => {
-        setProducts(data.products);
-      })
-      .catch((err) => {
-        console.error("Lỗi lấy sản phẩm:", err.message);
-      });
+    fetchData();
   }, []);
 
 
@@ -59,23 +56,13 @@ export default function HomePage() {
     <div className="min-h-screen bg-gradient-to-br from-white to-blue-50">
       {/* Navbar */}
 
-
-      {/* Thêm ToastContainer để hiển thị thông báo */}
-      <ToastContainer
-        position="top-center"       // Vị trí thông báo ở trên, căn giữa
-        autoClose={3000}           // Tự động đóng sau 3 giây
-        hideProgressBar={true}     // Ẩn thanh tiến trình
-        newestOnTop={true}         // Thông báo mới nhất hiển thị trên cùng
-        pauseOnHover={false}       // Không dừng thông báo khi hover chuột
-      />
-
       {/* Nội dung chính */}
       <main className="max-w-6xl mx-auto px-4 py-12">
         <h3 className="text-2xl font-semibold text-gray-800 mb-4">Sản phẩm mới</h3>
         <ProductList
           products={products}
           handleAddToCart={handleAddToCart}
-          activeProductId={activeProductId}
+          activeProductId={activeProductId !== null ? activeProductId.toString() : null}
         />
       </main>
     </div>

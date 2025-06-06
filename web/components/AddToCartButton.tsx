@@ -2,7 +2,7 @@
 "use client";
 import { toast } from "react-toastify";
 import { ShoppingCart } from "lucide-react";
-import { Product } from "@/schemas/product";
+import { Product, ProductOrder } from "@/schemas/product";
 
 type Props = {
     product: Product;
@@ -14,12 +14,21 @@ export default function AddToCartButton({ product }: Props) {
         const cart = JSON.parse(localStorage.getItem("cart") || "[]");
 
         // Kiểm tra xem sản phẩm đã tồn tại trong giỏ hàng chưa
-        const existingProductIndex = cart.findIndex((item: Product) => item.id === product.id);
+        const existingProductIndex = cart.findIndex((item: ProductOrder) => item.id === product.id);
 
         if (existingProductIndex !== -1) {
             cart[existingProductIndex].quantity += 1;
         } else {
-            cart.push({ ...product, quantity: 1 });
+
+            cart.push({
+                ...{
+                    id: product.id,
+                    name: product.product_name,
+                    price: product.price,
+                    image: product.image,
+                    description: product.description,
+                }, quantity: 1
+            });
         }
         // Cập nhật lại localStorage
         localStorage.setItem("cart", JSON.stringify(cart));

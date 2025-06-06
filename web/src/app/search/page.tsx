@@ -1,12 +1,12 @@
 "use client";
 import { useEffect, useState } from "react";
-import { seachProducts } from "@/lib/api"; // import từ module API
-import { toast, ToastContainer } from 'react-toastify'; // Import toastify
-import ProductList from "@/components/ProductList";
+import { searchProducts } from "@/lib/product_api"; // import từ module API
 import { Product } from "@/schemas/product";
 import { useSearchParams } from "next/navigation";
+import ProductList from "@/components/ProductList";
 import Link from "next/link";
 import Searching from "@/components/Searching";
+import { toast } from "react-toastify";
 
 export default function HomePage() {
     const [activeProductId, setActiveProductId] = useState<number | null>(null);
@@ -16,12 +16,15 @@ export default function HomePage() {
     const [loading, setLoading] = useState(false); // Trạng thái loading
     const searchParams = useSearchParams();
     const query = searchParams.get("query") || "";
+    const min_price = parseInt(searchParams.get("min_price") || "0");
+    const max_price = parseInt(searchParams.get("max_price") || "1000000000");
+    const category = searchParams.get("category") ? [searchParams.get("category") as string] : [];
 
     useEffect(() => {
         setMounted(true);
         setLoading(true); // Bắt đầu tìm kiếm, set loading = true
 
-        seachProducts(query)
+        searchProducts(query, category, min_price, max_price)
             .then((data) => {
                 setProducts(data);
                 setLoading(false); // Kết thúc tìm kiếm, set loading = false
@@ -61,26 +64,19 @@ export default function HomePage() {
     return (
         <div className="min-h-screen bg-gradient-to-br from-white to-blue-50">
             {/* Thêm ToastContainer để hiển thị thông báo */}
-            <ToastContainer
-                position="top-center"
-                autoClose={3000}
-                hideProgressBar={true}
-                newestOnTop={true}
-                pauseOnHover={false}
-            />
-
+          
             {/* Nội dung chính */}
             <main className="max-w-6xl mx-auto px-4 py-12">
-                
+
 
                 {/* Hiển thị "Searching..." khi loading */}
                 {loading ? (
-                    <Searching/>
+                    <Searching />
                 ) : foundProducts ? (
                     <><h3 className="text-2xl font-semibold text-gray-800 mb-4">Tìm kiếm cho {query}</h3><ProductList
-                            products={products}
-                            handleAddToCart={handleAddToCart}
-                            activeProductId={activeProductId} /></>
+                        products={products}
+                        handleAddToCart={handleAddToCart}
+                        activeProductId={activeProductId !== null ? activeProductId.toString() : null} /></>
                 ) : (
                     <div className="h-[80vh] flex items-center justify-center bg-gradient-to-br from-white to-blue-50 px-4">
                         <div className="mb-40 text-center animate-fade-in-up">
