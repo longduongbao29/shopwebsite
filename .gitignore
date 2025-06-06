@@ -3,6 +3,9 @@ node_modules/
 
 # Vite build output
 dist/
+esdatadir/
+kibanadata/
+db_data/
 
 # Logs
 npm-debug.log*
@@ -20,3 +23,4 @@ yarn-error.log*
 
 # Others
 *.log
+
