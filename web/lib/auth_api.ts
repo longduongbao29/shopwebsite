@@ -1,6 +1,6 @@
 import { UserRegister } from "@/schemas/user";
 
-const SERVER_URL = process.env.NEXT_PUBLIC_API_URL || "https://buymeshop.shop";
+const SERVER_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001";
 
 
 export async function loginUser(username: string, password: string) {
@@ -32,7 +32,7 @@ export async function loginUser(username: string, password: string) {
 }
 
 export async function registerUser(user_register: UserRegister) {
-   
+
     const res = await fetch(`${SERVER_URL}/api/auth/register`, {
         method: "POST",
         headers: {
