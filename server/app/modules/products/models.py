@@ -1,9 +1,8 @@
-from elasticsearch_dsl import Document, Text, Keyword, Float, Integer, Date
+import pytz
 from enum import Enum
 from datetime import datetime
-from numpy import average
-import pytz
 from sqlalchemy.ext.declarative import declarative_base
+from elasticsearch_dsl import Document, Text, Keyword, Float, Integer, Date
 
 from app.db.PosgreSQL import EngineSingleton
 from app.core.dependencies import injector

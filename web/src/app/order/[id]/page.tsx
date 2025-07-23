@@ -1,6 +1,10 @@
-import OrderPage from "@/src/app/order/page";
+import OrderPageClient from "@/components/order-page-client";
+
 type Params = Promise<{ id: string }>;
-export default async function OrderPageWrapper({ params }: { params:  Params  }) {
-  const {id} = await params
-  return <OrderPage id={id} />;
+
+export default async function OrderPageWrapper({ params }: { params: Params }) {
+  const { id } = await params;
+
+  // Pass the order ID to the client component
+  return <OrderPageClient orderId={id} />;
 }

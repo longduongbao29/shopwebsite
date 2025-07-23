@@ -1,9 +1,18 @@
 import { UserRegister } from "@/schemas/user";
 
-const SERVER_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001";
-
+// Xác định base URL cho server và client
+const getBaseURL = () => {
+    const isServer = typeof window === 'undefined';
+    if (isServer) {
+        // Server-side: sử dụng internal URL 
+        return process.env.NEXT_PUBLIC_API_URL || "http://server:8000";
+    }
+    // Client-side: sử dụng public URL
+    return process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+};
 
 export async function loginUser(username: string, password: string) {
+    const SERVER_URL = getBaseURL();
     const res = await fetch(`${SERVER_URL}/api/auth/login`, {
         method: "POST",
         headers: {
@@ -17,6 +26,7 @@ export async function loginUser(username: string, password: string) {
             client_id: "string",
             client_secret: "string",
         }).toString(),
+        cache: 'no-store', // Không cache auth requests
     });
 
     if (!res.ok) {
@@ -25,14 +35,17 @@ export async function loginUser(username: string, password: string) {
     }
     const data = await res.json();
     const jwtToken = data.access_token;
-    localStorage.setItem("token", jwtToken);
 
+    // Chỉ lưu token ở client-side
+    if (typeof window !== 'undefined') {
+        localStorage.setItem("token", jwtToken);
+    }
 
     return data;
 }
 
 export async function registerUser(user_register: UserRegister) {
-
+    const SERVER_URL = getBaseURL();
     const res = await fetch(`${SERVER_URL}/api/auth/register`, {
         method: "POST",
         headers: {
@@ -42,6 +55,7 @@ export async function registerUser(user_register: UserRegister) {
             email: user_register.email,
             password: user_register.password,
         }),
+        cache: 'no-store', // Không cache auth requests
     });
 
     if (!res.ok) {

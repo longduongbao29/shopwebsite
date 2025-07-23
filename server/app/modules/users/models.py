@@ -17,7 +17,6 @@ class User(Base):
         "UserInfo", back_populates="user", uselist=False, cascade="all, delete-orphan"
     )
 
-
 class UserInfo(Base):
     __tablename__ = "user_infos"
 

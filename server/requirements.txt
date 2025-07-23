@@ -10,6 +10,7 @@ langchain
 langchain-huggingface
 langchain-groq
 python-jose[cryptography]
-psycopg2
+psycopg2-binary
 pytz
 python-multipart
+sympy
