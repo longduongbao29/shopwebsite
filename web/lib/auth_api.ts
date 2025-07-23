@@ -1,31 +1,16 @@
 import { UserRegister } from "@/schemas/user";
 
-// Xác định base URL cho server và client
-const getBaseURL = () => {
-    const isServer = typeof window === 'undefined';
-    if (isServer) {
-        // Server-side: sử dụng internal URL 
-        return process.env.NEXT_PUBLIC_API_URL || "http://server:8000";
-    }
-    // Client-side: sử dụng public URL
-    return process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-};
-
 export async function loginUser(username: string, password: string) {
-    const SERVER_URL = getBaseURL();
-    const res = await fetch(`${SERVER_URL}/api/auth/login`, {
+    // Gọi Next.js API route thay vì trực tiếp backend
+    const res = await fetch(`/api/auth/login`, {
         method: "POST",
         headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
+            "Content-Type": "application/json",
         },
-        body: new URLSearchParams({
-            grant_type: "password",
+        body: JSON.stringify({
             username: username,
             password: password,
-            scope: "",
-            client_id: "string",
-            client_secret: "string",
-        }).toString(),
+        }),
         cache: 'no-store', // Không cache auth requests
     });
 
@@ -33,6 +18,7 @@ export async function loginUser(username: string, password: string) {
         const error = await res.json();
         throw new Error(error.message || "Đăng nhập thất bại");
     }
+
     const data = await res.json();
     const jwtToken = data.access_token;
 
@@ -45,8 +31,8 @@ export async function loginUser(username: string, password: string) {
 }
 
 export async function registerUser(user_register: UserRegister) {
-    const SERVER_URL = getBaseURL();
-    const res = await fetch(`${SERVER_URL}/api/auth/register`, {
+    // Gọi Next.js API route thay vì trực tiếp backend
+    const res = await fetch(`/api/auth/register`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -62,6 +48,7 @@ export async function registerUser(user_register: UserRegister) {
         const error = await res.json();
         throw new Error(error.message || "Đăng ký thất bại");
     }
+
     const data = await res.json();
     console.log("Register response:", data);
     return data;

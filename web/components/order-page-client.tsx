@@ -45,10 +45,9 @@ export default function OrderPageClient({ orderId }: OrderPageClientProps = {}) 
 
     // Load dữ liệu giỏ hàng từ localStorage khi component mount
     const fetchCart = async () => {
-        if (typeof window !== 'undefined') {
-            const storedCart = JSON.parse(localStorage.getItem("cart") || "[]") as ProductOrder[];
-            setOrderItems(storedCart);
-        }
+        // Chỉ chạy trong useEffect nên localStorage luôn có sẵn
+        const storedCart = JSON.parse(localStorage.getItem("cart") || "[]") as ProductOrder[];
+        setOrderItems(storedCart);
     };
 
     useEffect(() => {
@@ -97,9 +96,7 @@ export default function OrderPageClient({ orderId }: OrderPageClientProps = {}) 
         toast.success("Đặt hàng thành công!");
 
         // Xóa giỏ hàng sau khi đặt hàng thành công
-        if (typeof window !== 'undefined') {
-            localStorage.removeItem("cart");
-        }
+        localStorage.removeItem("cart");
     };
 
     // Lấy danh sách tỉnh/thành phố khi component mount
@@ -333,7 +330,7 @@ export default function OrderPageClient({ orderId }: OrderPageClientProps = {}) 
                                 </div>
                             ))}
                         </div>
-                        <div className="flex justify-between items-center mt-4 pt-4 border-t text-lg font-bold">
+                        <div className="flex justify-between items-center mt-4 pt-4 border-t text-lg font-bold text-gray-900">
                             <span>Tổng tiền:</span>
                             <span className="text-red-600">{totalAmount.toLocaleString()} đ</span>
                         </div>

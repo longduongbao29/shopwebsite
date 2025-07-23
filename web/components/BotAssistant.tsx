@@ -6,6 +6,7 @@ import { ChatMessage } from "@/schemas/chatbot";
 import { useRef } from "react";
 // import { useRouter } from "next/navigation";
 export default function BotAssistant() {
+    const [mounted, setMounted] = useState(false);
     const [showMessage, setShowMessage] = useState(true);
     const [isMobile, setIsMobile] = useState(false);
     const [chatOpen, setChatOpen] = useState(false);
@@ -14,25 +15,39 @@ export default function BotAssistant() {
     const [randMessage, setRandomMessage] = useState("Chào bạn, bạn cần giúp gì không!!!")
     const [isBotVisible, setIsBotVisible] = useState(true);
     const chatContainerRef = useRef<HTMLDivElement>(null);
-    // const router = useRouter();
-    if (chatContainerRef.current) {
-        chatContainerRef.current.scrollTo({ top: chatContainerRef.current.scrollHeight, behavior: "smooth" });
-    }
+
+    // Hydration safety với delay để sync với Header
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setMounted(true);
+        }, 150); // Delay hơn Header một chút
+
+        return () => clearTimeout(timer);
+    }, []);
+
+    // if (chatContainerRef.current) {
+    //     chatContainerRef.current.scrollTo({ top: chatContainerRef.current.scrollHeight, behavior: "smooth" });
+    // }
     useEffect(() => {
         if (chatContainerRef.current) {
             chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
         }
     }, [chatHistory]);
 
-    // Kiểm tra kích thước màn hình (mobile)
+    // Kiểm tra kích thước màn hình (mobile) - chỉ sau khi mounted
     useEffect(() => {
+        if (!mounted) return;
+
         const checkMobile = () => {
-            setIsMobile(window.innerWidth <= 768);
+            if (typeof window !== 'undefined') {
+                setIsMobile(window.innerWidth <= 768);
+            }
         };
+
         checkMobile();
         window.addEventListener("resize", checkMobile);
         return () => window.removeEventListener("resize", checkMobile);
-    }, []);
+    }, [mounted]);
     useEffect(() => {
         let timeout: NodeJS.Timeout;
         if (showMessage) {
@@ -97,6 +112,12 @@ export default function BotAssistant() {
     //         router.push(`/search?query=${encodeURIComponent(params)}`)
     //     }
     // }
+
+    // Prevent hydration mismatch
+    if (!mounted) {
+        return null;
+    }
+
     return (
         <>
             {/* Chat Modal */}
@@ -180,23 +201,23 @@ export default function BotAssistant() {
                                     </div>
                                 </div>
                                 <div className="px-4 py-2 bg-gray-100">
-                                        <input
-                                            type="text"
-                                            value={message}
-                                            onChange={handleInputChange}
-                                            onKeyDown={handleKeyDown}
-                                            className="w-full px-2 py-1 border border-gray-300 text-gray-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-xs"
-                                            placeholder="Nhập tin nhắn..."
-                                        />
-                                    
-                                            <button
-                                                onClick={handleSendMessage}
-                                                className="w-full mt-2 py-1 bg-blue-600 text-white rounded-lg focus:outline-none text-xs"
-                                            >
-                                                Gửi
-                                            </button>
-                                     
-                                   
+                                    <input
+                                        type="text"
+                                        value={message}
+                                        onChange={handleInputChange}
+                                        onKeyDown={handleKeyDown}
+                                        className="w-full px-2 py-1 border border-gray-300 text-gray-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-xs"
+                                        placeholder="Nhập tin nhắn..."
+                                    />
+
+                                    <button
+                                        onClick={handleSendMessage}
+                                        className="w-full mt-2 py-1 bg-blue-600 text-white rounded-lg focus:outline-none text-xs"
+                                    >
+                                        Gửi
+                                    </button>
+
+
                                 </div>
                             </div>
                         </div>

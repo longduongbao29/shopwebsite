@@ -1,12 +1,12 @@
 "use client";
-import { useEffect, useState } from "react";
 import { ShoppingCart, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "react-toastify";
+import { useLocalStorage } from "@/lib/useLocalStorage";
 
 type Product = {
     id: number;
-    name: string;
+    product_name: string;
     description: string;
     price: number;
     image: string;
@@ -14,19 +14,11 @@ type Product = {
 };
 
 export default function CartPageClient() {
-    const [mounted, setMounted] = useState(false);
-    const [cart, setCart] = useState<Product[]>([]);
+    // Sử dụng hook mới thay vì mounted state
+    const [cart, setCart, isCartLoaded] = useLocalStorage<Product[]>("cart", []);
 
-    // Đọc giỏ hàng từ localStorage
-    useEffect(() => {
-        setMounted(true);
-        if (typeof window !== 'undefined') {
-            const storedCart = JSON.parse(localStorage.getItem("cart") || "[]") as Product[];
-            setCart(storedCart);
-        }
-    }, []);
-
-    if (!mounted) {
+    // Loading state hiển thị khi chưa load xong localStorage
+    if (!isCartLoaded) {
         return (
             <div className="min-h-[calc(100vh-100px)] flex items-center justify-center">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -37,7 +29,6 @@ export default function CartPageClient() {
     // Hàm xóa sản phẩm khỏi giỏ hàng
     const removeFromCart = (productId: number) => {
         const updatedCart = cart.filter((product: Product) => product.id !== productId);
-        localStorage.setItem("cart", JSON.stringify(updatedCart));
         setCart(updatedCart);
         toast.success("Đã xóa sản phẩm khỏi giỏ hàng!");
     };
@@ -47,7 +38,6 @@ export default function CartPageClient() {
         const updatedCart = cart.map((product: Product) =>
             product.id === productId ? { ...product, quantity: product.quantity + 1 } : product
         );
-        localStorage.setItem("cart", JSON.stringify(updatedCart));
         setCart(updatedCart);
     };
 
@@ -58,7 +48,6 @@ export default function CartPageClient() {
                 ? { ...product, quantity: product.quantity - 1 }
                 : product
         );
-        localStorage.setItem("cart", JSON.stringify(updatedCart));
         setCart(updatedCart);
     };
 
@@ -100,12 +89,12 @@ export default function CartPageClient() {
                                 >
                                     <img
                                         src={product.image}
-                                        alt={product.name}
+                                        alt={product.product_name}
                                         className="w-24 h-24 object-cover rounded-lg"
                                     />
                                     <div className="flex-1">
                                         <h3 className="text-xl font-semibold text-gray-800">
-                                            {product.name}
+                                            {product.product_name}
                                         </h3>
                                         <p className="text-gray-600 mt-1">
                                             {product.description}
@@ -114,7 +103,7 @@ export default function CartPageClient() {
                                             {product.price.toLocaleString('vi-VN')}đ
                                         </p>
                                     </div>
-                                    <div className="flex items-center space-x-3">
+                                    <div className="flex items-center space-x-3 text-gray-700">
                                         <button
                                             onClick={() => decreaseQuantity(product.id)}
                                             className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center hover:bg-gray-300 transition-colors"
@@ -148,7 +137,7 @@ export default function CartPageClient() {
                                 <h3 className="text-xl font-semibold text-gray-800 mb-4">
                                     Tóm tắt đơn hàng
                                 </h3>
-                                <div className="space-y-3 mb-4">
+                                <div className="space-y-3 mb-4 text-gray-700">
                                     <div className="flex justify-between">
                                         <span>Tạm tính:</span>
                                         <span>{totalPrice.toLocaleString('vi-VN')}đ</span>

@@ -1,14 +1,11 @@
-import { ChatMessage } from "@/schemas/chatbot";  
-
-const SERVER_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001";
-
+import { ChatMessage } from "@/schemas/chatbot";
 
 export async function sendChatRequest(messages: ChatMessage[]): Promise<ChatMessage> {
-
     try {
         const history_chat = JSON.stringify(messages.slice(0, messages.length - 1));
 
-        const response = await fetch(`${SERVER_URL}/api/chatbot/chat`, {
+        // Gọi Next.js API route thay vì trực tiếp backend
+        const response = await fetch(`/api/chatbot/chat`, {
             method: "POST",
             headers: {
                 "accept": "application/json",
@@ -23,8 +20,9 @@ export async function sendChatRequest(messages: ChatMessage[]): Promise<ChatMess
         if (!response.ok) {
             throw new Error(`Request failed with status ${response.status}`);
         }
-        const res_json = await response.json()
-        const chat_msg: ChatMessage = { "role": "AI", "message": res_json.message }
+
+        const res_json = await response.json();
+        const chat_msg: ChatMessage = { "role": "AI", "message": res_json.message };
 
         return chat_msg;
     } catch (error) {
@@ -34,9 +32,9 @@ export async function sendChatRequest(messages: ChatMessage[]): Promise<ChatMess
 }
 
 export async function randomMessage(): Promise<string> {
-
     try {
-        const response = await fetch(`${SERVER_URL}/api/chatbot/random_chat`, {
+        // Gọi Next.js API route thay vì trực tiếp backend
+        const response = await fetch(`/api/chatbot/random`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
@@ -46,9 +44,9 @@ export async function randomMessage(): Promise<string> {
         if (!response.ok) {
             throw new Error(`Request failed with status ${response.status}`);
         }
-        const res_json = await response.json()
 
-        return res_json.message
+        const res_json = await response.json();
+        return res_json.message;
     } catch (error) {
         console.error("Error while sending chat request:", error);
         throw error;

@@ -30,5 +30,12 @@ export interface Rating {
     rating: number;
     comment: string;
     created_at: Date;
+}
 
+// Type cho response của rating API
+export interface RatingResponse {
+    user_name: string;
+    created_at: string;
+    comment: string;
+    rating: number;
 }

@@ -4,42 +4,57 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ShoppingCart, UserCircle, Home, LogOut, Menu, X } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { UserInfo } from "@/schemas/user"; // Chỉnh lại đường dẫn nếu cần
+import { UserInfo } from "@/schemas/user";
+import { createMountingDelay, safeLocalStorage } from "@/lib/mounting";
 export default function Header() {
     const [mounted, setMounted] = useState(false);
     const [user, setUser] = useState<UserInfo | null>(null);
-    const [isMenuOpen, setIsMenuOpen] = useState(false);  // Trạng thái của menu hamburger
-    const [searchText, setSearchText] = useState(""); // 🆕 Thêm state cho ô tìm kiếm
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [searchText, setSearchText] = useState("");
+    const [isLoading, setIsLoading] = useState(true); // Add loading state
     const router = useRouter();
 
     useEffect(() => {
-        setMounted(true);
-        const storedToken = localStorage.getItem("token");
-        if (storedToken) {
-            try {
-                const decodedToken = JSON.parse(atob(storedToken.split('.')[1]));
-                
-            setUser(decodedToken);
-            } catch (error) {
-                console.error("Failed to decode token:", error);
-            setUser(null);
+        // Sử dụng global mounting delay để sync tất cả components
+        createMountingDelay(100).then(() => {
+            setMounted(true);
+            setIsLoading(false);
+
+            // Safe localStorage access
+            const storage = safeLocalStorage();
+            if (storage) {
+                const storedToken = storage.getItem("token");
+                if (storedToken) {
+                    try {
+                        const decodedToken = JSON.parse(atob(storedToken.split('.')[1]));
+                        setUser(decodedToken);
+                    } catch (error) {
+                        console.error("Failed to decode token:", error);
+                        setUser(null);
+                    }
+                }
             }
-        }
+        });
     }, []);
 
     useEffect(() => {
+        if (!mounted) return; // Chỉ listen events sau khi mounted
+
         const handleHeaderUpdate = () => {
-            const storedToken = localStorage.getItem("token");
-            if (storedToken) {
-                try {
-                    const decodedToken = JSON.parse(atob(storedToken.split('.')[1]));
-                    setUser(decodedToken);
-                } catch (error) {
-                    console.error("Failed to decode token:", error);
+            const storage = safeLocalStorage();
+            if (storage) {
+                const storedToken = storage.getItem("token");
+                if (storedToken) {
+                    try {
+                        const decodedToken = JSON.parse(atob(storedToken.split('.')[1]));
+                        setUser(decodedToken);
+                    } catch (error) {
+                        console.error("Failed to decode token:", error);
+                        setUser(null);
+                    }
+                } else {
                     setUser(null);
                 }
-            } else {
-                setUser(null);
             }
         };
 
@@ -48,10 +63,21 @@ export default function Header() {
         return () => {
             document.removeEventListener("header:update", handleHeaderUpdate);
         };
-    }, []);
+    }, [mounted]); // Depend on mounted state
 
-    if (!mounted) {
-        return null;
+    // Show consistent loading state để tránh flicker
+    if (!mounted || isLoading) {
+        return (
+            <nav className="bg-orange-500 shadow-md sticky top-0 z-50">
+                <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+                    <div className="text-white font-bold text-xl">BuyMe Shop</div>
+                    <div className="flex items-center space-x-4">
+                        <div className="w-8 h-8 bg-white/20 rounded animate-pulse"></div>
+                        <div className="w-8 h-8 bg-white/20 rounded animate-pulse"></div>
+                    </div>
+                </div>
+            </nav>
+        );
     }
     const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -64,18 +90,22 @@ export default function Header() {
     };
     const handleLogout = () => {
         setIsMenuOpen(false);
-        localStorage.removeItem("user");
-        localStorage.removeItem("token");
+        // Safe localStorage operations
+        const storage = safeLocalStorage();
+        if (storage) {
+            storage.removeItem("user");
+            storage.removeItem("token");
+        }
         import("react-toastify").then(({ toast }) => {
             toast.success("Đăng xuất thành công!", {
-            position: "top-right",
-            autoClose: 3000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "colored",
+                position: "top-right",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "colored",
             });
         });
         setUser(null);
