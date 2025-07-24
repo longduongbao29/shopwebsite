@@ -14,7 +14,10 @@ export async function getProducts() {
             headers: {
                 "Content-Type": "application/json",
             },
-            next: { revalidate: 3600 }, // Cache 1 hour cho SSR
+            next: {
+                revalidate: 3600, // Cache 1 hour cho SSR
+                tags: ['products'] // Tag để có thể revalidate
+            },
         });
 
         if (!res.ok) {
@@ -38,7 +41,10 @@ export async function getProduct(id: number): Promise<Product | null> {
             headers: {
                 "Content-Type": "application/json",
             },
-            next: { revalidate: 1800 }, // Cache 30 minutes cho SSR
+            next: {
+                revalidate: 1800, // Cache 30 minutes cho SSR
+                tags: ['product', `product-${id}`] // Tags để có thể revalidate specific product
+            },
         });
 
         if (!res.ok) {
@@ -87,7 +93,10 @@ export async function getRating(id: number): Promise<RatingResponse[]> {
             headers: {
                 "Content-Type": "application/json",
             },
-            next: { revalidate: 900 }, // Cache 15 minutes cho ratings
+            next: {
+                revalidate: 900, // Cache 15 minutes cho ratings
+                tags: ['ratings', `rating-${id}`] // Tags để có thể revalidate specific rating
+            },
         });
 
         if (!res.ok) {

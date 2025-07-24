@@ -19,6 +19,7 @@ from app.modules.products.schemas import (
 )
 from app.utils.logger import logger_setup
 from app.modules.users.models import User, UserInfo
+from app.utils.webhook_revalidator import revalidate_all_products, revalidate_product
 
 logger = logger_setup(__name__)
 
@@ -41,7 +42,12 @@ class ProductManager:
     def createProduct(cls, prd: Product):
         try:
             db_obj = cls.pg.create(ProductModel, dict(prd))
-            return ProductResponse(**db_obj.__dict__)
+            product_response = ProductResponse(**db_obj.__dict__)
+            
+            # Revalidate cache sau khi tạo product mới
+            revalidate_all_products()
+            
+            return product_response
         except Exception as e:
             logger.error(f"Create product failed: {e}")
             raise e
@@ -52,6 +58,10 @@ class ProductManager:
             products = cls.pg.delete_by_field(ProductModel, "id", id)
             if not products:
                 raise RecordNotFoundException(f"Product with ID {id} not found.")
+            
+            # Revalidate cache sau khi xóa product
+            revalidate_all_products()
+            
         except Exception as e:
             logger.error(f"Delete product failed: {e}")
             raise e
@@ -166,8 +176,11 @@ class ProductManager:
             # Create a new rating entry
             db_obj = cls.pg.create(Ratings, product_rating)
 
-            # Update the average rating and total rating in the Product table
+                        # Update rating thành công
             cls.update_average_rating(product_rating["product_id"])
+            
+            # Revalidate cache cho product này vì rating đã thay đổi
+            revalidate_product(product_rating["product_id"])
 
             return {"message": "Rating successful", "data": db_obj.__dict__}
         except Exception as e:
