@@ -3,28 +3,24 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, ActivityIndicator } from 'react-native';
 import Toast from 'react-native-toast-message';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { router } from 'expo-router';
 
 import { getProducts } from '@/lib/api';
 import ProductList from '@/components/ProductList';
 import { Product } from '@/schemas/product';
-import { RootStackParamList } from '@/navigation/types'; // Bạn phải có file này
-
-type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
+import { Chatbot, ChatbotFloatingButton } from '@/components/Chatbot';
 
 export default function HomeScreen() {
     const [activeProductId, setActiveProductId] = useState<number | null>(null);
     const [products, setProducts] = useState<Product[]>([]);
     const [mounted, setMounted] = useState(false);
-
-    const navigation = useNavigation<NavigationProp>();
+    const [chatbotVisible, setChatbotVisible] = useState(false);
 
     useEffect(() => {
         setMounted(true);
         getProducts()
             .then((data) => {
-                setProducts(data.products);
+                setProducts(data);
             })
             .catch((err) => {
                 console.error("Lỗi lấy sản phẩm:", err.message);
@@ -72,6 +68,13 @@ export default function HomeScreen() {
                     activeProductId={activeProductId}
                 />
             </ScrollView>
+
+            {/* Chatbot */}
+            <ChatbotFloatingButton onPress={() => setChatbotVisible(true)} />
+            <Chatbot
+                visible={chatbotVisible}
+                onClose={() => setChatbotVisible(false)}
+            />
         </View>
     );
 }
@@ -82,14 +85,16 @@ const styles = StyleSheet.create({
         backgroundColor: '#EFF6FF', // Màu nền nhẹ, tương tự gradient từ trắng đến xanh nhẹ
     },
     content: {
-        paddingHorizontal: 16,
-        paddingVertical: 12,
+        paddingHorizontal: 8, // Giảm padding horizontal
+        paddingVertical: 8, // Giảm padding vertical
+        paddingBottom: 20, // Thêm padding bottom
     },
     title: {
-        fontSize: 24,
+        fontSize: 22, // Giảm font size
         fontWeight: '600',
         color: '#1F2937',
-        marginBottom: 16,
+        marginBottom: 12, // Giảm margin bottom
+        paddingHorizontal: 8, // Thêm padding để căn với ProductList
     },
     loading: {
         flex: 1,

@@ -85,48 +85,52 @@ export default function CartPageClient() {
                             {cart.map((product: Product) => (
                                 <div
                                     key={product.id}
-                                    className="bg-white rounded-xl shadow-lg p-6 flex items-center space-x-4"
+                                    className="bg-white rounded-xl shadow-lg p-6 flex flex-col sm:flex-row sm:items-center space-y-4 sm:space-y-0 sm:space-x-4"
                                 >
-                                    <img
-                                        src={product.image}
-                                        alt={product.product_name}
-                                        className="w-24 h-24 object-cover rounded-lg"
-                                    />
-                                    <div className="flex-1">
-                                        <h3 className="text-xl font-semibold text-gray-800">
-                                            {product.product_name}
-                                        </h3>
-                                        <p className="text-gray-600 mt-1">
-                                            {product.description}
-                                        </p>
-                                        <p className="text-lg font-bold text-blue-600 mt-2">
-                                            {product.price.toLocaleString('vi-VN')}đ
-                                        </p>
+                                    <div className="flex items-center space-x-4 flex-1">
+                                        <img
+                                            src={product.image}
+                                            alt={product.product_name}
+                                            className="w-20 h-20 sm:w-24 sm:h-24 object-cover rounded-lg flex-shrink-0"
+                                        />
+                                        <div className="flex-1 min-w-0">
+                                            <h3 className="text-lg sm:text-xl font-semibold text-gray-800 truncate">
+                                                {product.product_name}
+                                            </h3>
+                                            <p className="text-gray-600 mt-1 text-sm sm:text-base line-clamp-2">
+                                                {product.description}
+                                            </p>
+                                            <p className="text-lg font-bold text-blue-600 mt-2">
+                                                {product.price.toLocaleString('vi-VN')}đ
+                                            </p>
+                                        </div>
                                     </div>
-                                    <div className="flex items-center space-x-3 text-gray-700">
+                                    <div className="flex items-center justify-between sm:justify-end sm:space-x-3">
+                                        <div className="flex items-center space-x-3 text-gray-700">
+                                            <button
+                                                onClick={() => decreaseQuantity(product.id)}
+                                                className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center hover:bg-gray-300 transition-colors"
+                                            >
+                                                -
+                                            </button>
+                                            <span className="text-lg font-semibold w-8 text-center">
+                                                {product.quantity}
+                                            </span>
+                                            <button
+                                                onClick={() => increaseQuantity(product.id)}
+                                                className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center hover:bg-gray-300 transition-colors"
+                                            >
+                                                +
+                                            </button>
+                                        </div>
                                         <button
-                                            onClick={() => decreaseQuantity(product.id)}
-                                            className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center hover:bg-gray-300 transition-colors"
+                                            onClick={() => removeFromCart(product.id)}
+                                            className="text-red-500 hover:text-red-700 transition-colors p-2 ml-2"
+                                            title="Xóa sản phẩm"
                                         >
-                                            -
-                                        </button>
-                                        <span className="text-lg font-semibold w-8 text-center">
-                                            {product.quantity}
-                                        </span>
-                                        <button
-                                            onClick={() => increaseQuantity(product.id)}
-                                            className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center hover:bg-gray-300 transition-colors"
-                                        >
-                                            +
+                                            <Trash2 size={20} />
                                         </button>
                                     </div>
-                                    <button
-                                        onClick={() => removeFromCart(product.id)}
-                                        className="text-red-500 hover:text-red-700 transition-colors p-2"
-                                        title="Xóa sản phẩm"
-                                    >
-                                        <Trash2 size={20} />
-                                    </button>
                                 </div>
                             ))}
                         </div>

@@ -1,13 +1,10 @@
 """
 Webhook utility for revalidating Next.js cache when data changes.
 """
-
 import requests
-import logging
 from typing import Optional, List
 import os
 
-logger = logging.getLogger(__name__)
 
 class WebhookRevalidator:
     def __init__(self):
@@ -34,7 +31,6 @@ class WebhookRevalidator:
             response.raise_for_status()
             return response.json()
         except requests.RequestException as e:
-            logger.error(f"Error calling webhook: {e}")
             return None
     
     def revalidate_all_products(self) -> bool:
@@ -46,7 +42,7 @@ class WebhookRevalidator:
         result = self._make_request(payload)
         
         if result:
-            logger.info("Successfully revalidated all product caches")
+            print("Successfully revalidated all product caches")
             return True
         return False
     
@@ -62,7 +58,7 @@ class WebhookRevalidator:
         result = self._make_request(payload)
         
         if result:
-            logger.info(f"Successfully revalidated product {product_id} cache")
+            print(f"Successfully revalidated product {product_id} cache")
             return True
         return False
     
@@ -77,7 +73,7 @@ class WebhookRevalidator:
         result = self._make_request(payload)
         
         if result:
-            logger.info(f"Successfully revalidated tags: {', '.join(tags)}")
+            print(f"Successfully revalidated tags: {', '.join(tags)}")
             return True
         return False
     
@@ -92,7 +88,7 @@ class WebhookRevalidator:
         result = self._make_request(payload)
         
         if result:
-            logger.info(f"Successfully revalidated paths: {', '.join(paths)}")
+            print(f"Successfully revalidated paths: {', '.join(paths)}")
             return True
         return False
 

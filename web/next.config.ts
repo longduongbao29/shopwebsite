@@ -1,5 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+    env: {
+        WEBHOOK_SECRET: process.env.WEBHOOK_SECRET,
+        BACKEND_URL: process.env.BACKEND_URL,
+    },
     // async rewrites() {
     //     return [
     //         {

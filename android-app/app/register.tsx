@@ -11,18 +11,16 @@ import {
     ScrollView,
     ActivityIndicator,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { router } from 'expo-router';
 import { registerUser, loginUser } from "@/lib/api";
 import { UserRegister } from "@/schemas/user";
-import { RootStackParamList } from '@/navigation/types';
 import Toast from 'react-native-toast-message';
-import { MailIcon, LockClosedIcon } from 'lucide-react-native';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Ionicons } from '@expo/vector-icons';
 
 export default function RegisterScreen() {
-    const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
     const [mounted, setMounted] = useState(false);
-    const [user, setUser] = useState<UserRegister>({ email: "", password: "" });
+    const [user, setUser] = useState<{ email: string; password: string }>({ email: "", password: "" });
     const [confirmPassword, setConfirmPassword] = useState("");
     const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
@@ -66,7 +64,7 @@ export default function RegisterScreen() {
             }
 
             setTimeout(() => {
-                navigation.navigate("Home");
+                router.push("/");
             }, 1000);
         } catch (err) {
             setError(err instanceof Error ? err.message : "An unknown error occurred");
@@ -100,7 +98,7 @@ export default function RegisterScreen() {
                     )}
 
                     <View style={styles.inputWrapper}>
-                        <MailIcon size={20} color="#9CA3AF" style={styles.inputIcon} />
+                        <Ionicons name="mail-outline" size={20} color="#9CA3AF" style={styles.inputIcon} />
                         <TextInput
                             style={styles.input}
                             placeholder="Email"
@@ -114,7 +112,7 @@ export default function RegisterScreen() {
                     </View>
 
                     <View style={styles.inputWrapper}>
-                        <LockClosedIcon size={20} color="#9CA3AF" style={styles.inputIcon} />
+                        <Ionicons name="lock-closed-outline" size={20} color="#9CA3AF" style={styles.inputIcon} />
                         <TextInput
                             style={styles.input}
                             placeholder="Mật khẩu"
@@ -127,7 +125,7 @@ export default function RegisterScreen() {
                     </View>
 
                     <View style={styles.inputWrapper}>
-                        <LockClosedIcon size={20} color="#9CA3AF" style={styles.inputIcon} />
+                        <Ionicons name="lock-closed-outline" size={20} color="#9CA3AF" style={styles.inputIcon} />
                         <TextInput
                             style={styles.input}
                             placeholder="Xác nhận mật khẩu"
@@ -152,10 +150,9 @@ export default function RegisterScreen() {
                     </TouchableOpacity>
 
                     <Text style={styles.footerText}>
-                        Đã có tài khoản?{" "}
-                        <Text
+                        Đã có tài khoản? <Text
                             style={styles.linkText}
-                            onPress={() => navigation.navigate("Login")}
+                            onPress={() => router.push("/login")}
                         >
                             Đăng nhập
                         </Text>

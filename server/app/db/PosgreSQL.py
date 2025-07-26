@@ -1,8 +1,7 @@
-from huggingface_hub import get_session
 from injector import inject
 from typing import Generator, Type, Optional, Any, List
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy import create_engine, func
+from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 from contextlib import contextmanager
 

@@ -10,12 +10,11 @@ import {
     Platform,
     ActivityIndicator,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
-import { RootStackParamList } from "@/navigation/types";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { router } from 'expo-router';
 import { loginUser } from "@/lib/api";
 import Toast from 'react-native-toast-message';
-import { MailIcon, LockClosedIcon } from 'lucide-react-native';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Ionicons } from '@expo/vector-icons';
 
 export default function LoginScreen() {
     const [mounted, setMounted] = useState(false);
@@ -23,7 +22,6 @@ export default function LoginScreen() {
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
-    const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
     useEffect(() => {
         setMounted(true);
@@ -49,7 +47,7 @@ export default function LoginScreen() {
             });
 
             setTimeout(() => {
-                navigation.navigate("Home");
+                router.push("/");
             }, 1000);
         } catch (err) {
             setError(err instanceof Error ? err.message : "An unknown error occurred");
@@ -68,15 +66,12 @@ export default function LoginScreen() {
                     <Image source={require("@/assets/images/logo_only.png")} style={styles.logo} />
                     <Text style={styles.title}>BUYME</Text>
                 </View>
-
                 <Text style={styles.subtitle}>Đăng nhập vào tài khoản</Text>
-
                 {error && (
                     <Text style={styles.errorText}>{error}</Text>
                 )}
-
                 <View style={styles.inputWrapper}>
-                    <MailIcon size={20} color="#9CA3AF" style={styles.inputIcon} />
+                    <Ionicons name="mail-outline" size={20} color="#9CA3AF" style={styles.inputIcon} />
                     <TextInput
                         style={styles.input}
                         placeholder="Email"
@@ -88,9 +83,8 @@ export default function LoginScreen() {
                         editable={!isLoading}
                     />
                 </View>
-
                 <View style={styles.inputWrapper}>
-                    <LockClosedIcon size={20} color="#9CA3AF" style={styles.inputIcon} />
+                    <Ionicons name="lock-closed-outline" size={20} color="#9CA3AF" style={styles.inputIcon} />
                     <TextInput
                         style={styles.input}
                         placeholder="Mật khẩu"
@@ -101,7 +95,6 @@ export default function LoginScreen() {
                         editable={!isLoading}
                     />
                 </View>
-
                 <TouchableOpacity
                     style={[styles.button, isLoading && styles.buttonDisabled]}
                     onPress={handleLogin}
@@ -113,12 +106,10 @@ export default function LoginScreen() {
                         <Text style={styles.buttonText}>Đăng nhập</Text>
                     )}
                 </TouchableOpacity>
-
                 <Text style={styles.footerText}>
-                    Chưa có tài khoản?{" "}
-                    <Text
+                    Chưa có tài khoản? <Text
                         style={styles.linkText}
-                        onPress={() => navigation.navigate("Register")}
+                        onPress={() => router.push("/register")}
                     >
                         Đăng ký ngay
                     </Text>

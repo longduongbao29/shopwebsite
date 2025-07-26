@@ -30,9 +30,9 @@ class ProductManager:
     @classmethod
     def getAllProduct(cls):
         try:
-            es_results = ProductDocument.search().execute()
-            products = [ProductResponse(**doc.to_dict()) for doc in es_results]
-            return products
+            db_obj = cls.pg.get_all(ProductModel)
+            product_response = [ProductResponse(**item.__dict__) for item in db_obj]
+            return product_response
         except Exception as e:
             products = []
             logger.exception("Failed to fetch all products")

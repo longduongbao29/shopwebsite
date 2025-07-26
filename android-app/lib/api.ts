@@ -1,6 +1,7 @@
 // lib/api.ts
 
-const API_BASE = "https://buymeshop.shop"
+// const API_BASE = "https://buymeshop.shop"
+const API_BASE = "http://localhost:8001" // sửa lại địa chỉ API cho phù hợp với môi trường phát triển
 
 export async function loginUser(username: string, password: string) {
     const res = await fetch(`${API_BASE}/api/login`, {  // sửa endpoint
@@ -30,7 +31,7 @@ export async function getProducts() {
 }
 
 export async function getProductById(id: string) {
-    const res = await fetch(`${API_BASE}/api/product/${id}`); 
+    const res = await fetch(`${API_BASE}/api/products/get_by_id/${id}`);
     if (!res.ok) {
         throw new Error("Không thể lấy thông tin sản phẩm");
     }
@@ -47,13 +48,13 @@ export async function seachProducts(query: string) {
 
 
 const MAP_URL = "https://vapi.vnappmob.com/api/v2"
-import {Province, District, Ward} from "@/schemas/map"
+import { Province, District, Ward } from "@/schemas/map"
 import { Product } from "@/schemas/product";
 
 export async function fetchProvinces() {
     try {
         const response = await fetch(`${MAP_URL}/province/`);
-        const data: { results:Province[]}= await response.json();
+        const data: { results: Province[] } = await response.json();
         return data.results || [];
     } catch (error) {
         console.error("Error fetching provinces:", error);
@@ -146,7 +147,7 @@ Ví dụ:
             throw new Error(`Request failed with status ${response.status}`);
         }
         const res_json = await response.json()
-        const chat_msg : ChatMessage = {"role": "AI","message":res_json.answer}
+        const chat_msg: ChatMessage = { "role": "AI", "message": res_json.answer }
         return chat_msg;
     } catch (error) {
         console.error("Error while sending chat request:", error);
@@ -154,13 +155,13 @@ Ví dụ:
     } finally {
         const last_msg = messages[messages.length - 1];
         console.log("Last msg: ", last_msg);
-        
+
         const behavior = await analyzeBehavior(last_msg.message);
         console.log("behavior: ", behavior);
     }
 }
 
-export interface Behavior{
+export interface Behavior {
     behavior: string;
     params: string;
 }
@@ -223,7 +224,7 @@ Do not provide any explanation. Only return the result exactly in the specified 
     }
 }
 
-export async function randomMessage(): Promise < string > {
+export async function randomMessage(): Promise<string> {
     const _msg: ChatMessage[] = [{ role: "user", message: "" }]
     const payload: ChatRequest = {
         use_retrieve: false,

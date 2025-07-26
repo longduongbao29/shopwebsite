@@ -24,7 +24,7 @@ type Product = {
 
 export default function CartScreen() {
     const [cart, setCart] = useState<Product[]>([]);
-   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+    const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
     useEffect(() => {
         const loadCart = async () => {

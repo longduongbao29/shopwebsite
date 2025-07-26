@@ -1,3 +1,4 @@
+import os
 import logging
 from logging.handlers import RotatingFileHandler
 
@@ -15,6 +16,8 @@ def logger_setup(
     Returns:
         logging.Logger: Configured logger instance.
     """
+    if not os.path.exists(os.path.dirname(log_file)):
+        os.makedirs(os.path.dirname(log_file))
 
     logger = logging.getLogger(name)
     logger.setLevel(level)

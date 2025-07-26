@@ -1,9 +1,20 @@
 export interface Product {
     id: number;
-    name: string;
+    product_name: string;
+    name?: string; // Keep for backward compatibility
     description: string;
     price: number;
-    image: string; // Đảm bảo có trường image trong API sản phẩm
-    quantity: number;
-    rating: number;
+    image: string;
+    category: string[];
+    brand: string;
+    size: string[];
+    color: string[];
+    stock: number;
+    original: string;
+    created_at: string;
+    updated_at: string;
+    average_rating: number;
+    total_rating: number;
+    quantity?: number; // For cart functionality
+    rating?: number; // Keep for backward compatibility
 };

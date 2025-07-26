@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Image, ScrollView, StyleSheet, ActivityIndicator, FlatList, Button } from 'react-native';
-import { useRoute, RouteProp } from '@react-navigation/native';
-import { RootStackParamList } from '@/navigation/types'; // Adjust the path to where RootStackParamList is defined
+import { useLocalSearchParams } from 'expo-router';
 import { getProductById } from '@/lib/api';
 import { RatingStars } from '@/components/RatingStars';
 import AddToCartButton from '@/components/AddToCartButton';
@@ -11,16 +10,17 @@ import { Product } from '@/schemas/product'; // Điều chỉnh theo schema củ
 
 
 export default function ProductPage() {
-    const route = useRoute<RouteProp<RootStackParamList, 'Product'>>();
-    const { id } = route.params;
+    const { id } = useLocalSearchParams();
     const [product, setProduct] = useState<Product | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchProduct = async () => {
-            const data = await getProductById(id);
-            setProduct(data.product);
-            setLoading(false);
+            if (id) {
+                const data = await getProductById(String(id));
+                setProduct(data);
+                setLoading(false);
+            }
         };
         fetchProduct();
     }, [id]);
@@ -52,8 +52,8 @@ export default function ProductPage() {
             <View style={styles.card}>
                 <Image source={{ uri: product?.image }} style={styles.image} />
                 <View style={styles.infoContainer}>
-                    <Text style={styles.title}>{product?.name}</Text>
-                    <RatingStars rating={product?.rating || 0} />
+                    <Text style={styles.title}>{product?.product_name || product?.name}</Text>
+                    <RatingStars rating={product?.average_rating || 0} />
                     <Text style={styles.description}>{product?.description}</Text>
                     <Text style={styles.price}>
                         {product?.price?.toLocaleString()} đ
@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
     image: {
         width: '100%',
         height: 250,
-        resizeMode: 'cover',
+        resizeMode: 'contain',
     },
     infoContainer: {
         padding: 16,

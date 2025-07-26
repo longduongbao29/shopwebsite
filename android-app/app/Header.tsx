@@ -1,40 +1,49 @@
 // Header.tsx (Expo / React Native)
 import React, { useEffect, useState } from "react";
-import { View, Text, Image, TextInput, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, Image, TextInput, TouchableOpacity, StyleSheet, Dimensions } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useNavigation } from "@react-navigation/native";
-import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
-// Ví dụ sử dụng icon từ react-native-heroicons (hoặc thay thế bằng thư viện icon khác nếu cần)
-import { HomeIcon, ShoppingCartIcon, UserCircleIcon, ArrowRightOnRectangleIcon, Bars3Icon, XMarkIcon } from "react-native-heroicons/outline";
-import { RootStackParamList } from '@/navigation/types';
+import { router } from 'expo-router';
+import Toast from 'react-native-toast-message';
+// Use Expo's vector icons instead of react-native-heroicons
+import { Ionicons, MaterialIcons } from '@expo/vector-icons';
+
+const { width } = Dimensions.get('window');
 
 export default function Header() {
-    const [user, setUser] = useState<{ name: string } | null>(null);
+    const [user, setUser] = useState<{ name: string; email: string } | null>(null);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [searchText, setSearchText] = useState("");
-
-    // Lấy đối tượng navigation với kiểu cụ thể từ NativeStackNavigationProp
-    const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         // Tải thông tin user từ AsyncStorage
-        (async () => {
+        const loadUser = async () => {
             try {
-                const storedUser = await AsyncStorage.getItem("user");
-                if (storedUser) {
-                    setUser(JSON.parse(storedUser));
+                const storedToken = await AsyncStorage.getItem("token");
+                if (storedToken) {
+                    try {
+                        const decodedToken = JSON.parse(atob(storedToken.split('.')[1]));
+                        setUser(decodedToken);
+                    } catch (error) {
+                        console.error("Failed to decode token:", error);
+                        setUser(null);
+                    }
                 }
             } catch (error) {
                 console.error("Error loading user:", error);
+            } finally {
+                setIsLoading(false);
             }
-        })();
+        };
+
+        loadUser();
     }, []);
 
     const handleSearchSubmit = () => {
         const query = searchText.trim();
         if (query !== "") {
             // Chuyển đến màn hình Search với tham số query
-            // navigation.navigate("Search", { query });
+            // router.push(`/search?query=${encodeURIComponent(query)}`);
             setIsMenuOpen(false);
             // Nếu muốn reset ô tìm kiếm, uncomment dòng dưới:
             // setSearchText("");
@@ -45,91 +54,123 @@ export default function Header() {
         setIsMenuOpen(false);
         try {
             await AsyncStorage.removeItem("user");
+            await AsyncStorage.removeItem("token");
             setUser(null);
+
+            Toast.show({
+                type: 'success',
+                text1: 'Đăng xuất thành công!',
+            });
+
             // Chuyển hướng về màn hình Home sau khi logout
-            navigation.navigate("Home");
+            router.push("/");
         } catch (error) {
             console.error("Error during logout:", error);
         }
     };
 
+    // Show loading state
+    if (isLoading) {
+        return (
+            <View style={styles.headerContainer}>
+                <View style={styles.logoContainer}>
+                    <Text style={styles.loadingText}>BuyMe Shop</Text>
+                </View>
+                <View style={styles.searchContainer}>
+                    <View style={styles.loadingSearchBox} />
+                </View>
+                <View style={styles.navContainer}>
+                    <View style={styles.loadingIcon} />
+                    <View style={styles.loadingIcon} />
+                </View>
+            </View>
+        );
+    }
+
     return (
         <View style={styles.headerContainer}>
-            {/* Dòng trên: Logo - ô tìm kiếm - nút menu */}
-            <View style={styles.topRow}>
-                <TouchableOpacity onPress={() => navigation.navigate("Home")}>
+            {/* Logo ở giữa trên mobile */}
+            <View style={styles.logoContainer}>
+                <TouchableOpacity onPress={() => router.push("/")}>
                     <Image
                         source={require("../assets/images/logo_slogan.png")} // Đảm bảo file logo có trong thư mục assets
                         style={styles.logo}
                         resizeMode="contain"
                     />
                 </TouchableOpacity>
-
-                <TextInput
-                    style={styles.searchInput}
-                    placeholder="Tìm sản phẩm..."
-                    value={searchText}
-                    onChangeText={setSearchText}
-                    onSubmitEditing={handleSearchSubmit}
-                    returnKeyType="search"
-                />
-
-                <TouchableOpacity onPress={() => setIsMenuOpen(!isMenuOpen)}>
-                    {isMenuOpen ? (
-                        <XMarkIcon size={24} color="#2563EB" />
-                    ) : (
-                        <Bars3Icon size={24} color="#2563EB" />
-                    )}
-                </TouchableOpacity>
             </View>
 
-            {/* Menu điều hướng (hiển thị khi isMenuOpen === true) */}
-            {isMenuOpen && (
-                <View style={styles.menuContainer}>
+            {/* Search bar */}
+            <View style={styles.searchContainer}>
+                <View style={styles.searchInputWrapper}>
+                    <Ionicons name="search" size={20} color="#9CA3AF" style={styles.searchIcon} />
+                    <TextInput
+                        style={styles.searchInput}
+                        placeholder="Tìm sản phẩm..."
+                        value={searchText}
+                        onChangeText={setSearchText}
+                        onSubmitEditing={handleSearchSubmit}
+                        returnKeyType="search"
+                        placeholderTextColor="#9CA3AF"
+                    />
+                </View>
+            </View>
+
+            {/* Navigation Icons */}
+            <View style={styles.navContainer}>
+                <TouchableOpacity
+                    style={styles.navButton}
+                    onPress={() => router.push("/")}
+                >
+                    <Ionicons name="home" size={24} color="white" />
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                    style={styles.navButton}
+                    onPress={() => router.push("/cart")}
+                >
+                    <Ionicons name="bag" size={24} color="white" />
+                </TouchableOpacity>
+
+                {user ? (
                     <TouchableOpacity
-                        style={styles.menuItem}
-                        onPress={() => {
-                            setIsMenuOpen(false);
-                            navigation.navigate("Home");
-                        }}
+                        style={styles.navButton}
+                        onPress={() => setIsMenuOpen(!isMenuOpen)}
                     >
-                        <HomeIcon size={20} color="#1F2937" />
-                        <Text style={styles.menuText}>Trang chủ</Text>
+                        <Ionicons name="person-circle" size={24} color="white" />
                     </TouchableOpacity>
+                ) : (
+                    <TouchableOpacity
+                        style={styles.navButton}
+                        onPress={() => router.push("/login")}
+                    >
+                        <Ionicons name="person-circle" size={24} color="white" />
+                    </TouchableOpacity>
+                )}
+            </View>
+
+            {/* User Menu Dropdown */}
+            {isMenuOpen && user && (
+                <View style={styles.dropdown}>
+                    <Text style={styles.userName}>Xin chào, {user.name}</Text>
 
                     <TouchableOpacity
                         style={styles.menuItem}
                         onPress={() => {
                             setIsMenuOpen(false);
-                            navigation.navigate("Cart");
+                            router.push("/order");
                         }}
                     >
-                        <ShoppingCartIcon size={20} color="#1F2937" />
-                        <Text style={styles.menuText}>Giỏ hàng</Text>
+                        <Text style={styles.menuText}>Đơn hàng của tôi</Text>
                     </TouchableOpacity>
 
-                    {user ? (
-                        <>
-                            <View style={[styles.menuItem, { alignItems: "center" }]}>
-                                <UserCircleIcon size={20} color="#2563EB" />
-                                <Text style={styles.menuText}>{user.name}</Text>
-                            </View>
-                            <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
-                                <ArrowRightOnRectangleIcon size={20} color="red" />
-                                <Text style={[styles.menuText, { color: "red" }]}>Đăng xuất</Text>
-                            </TouchableOpacity>
-                        </>
-                    ) : (
-                        <TouchableOpacity
-                            style={styles.menuItem}
-                            onPress={() => {
-                                setIsMenuOpen(false);
-                                navigation.navigate("Login");
-                            }}
-                        >
-                            <Text style={styles.menuText}>Đăng nhập</Text>
-                        </TouchableOpacity>
-                    )}
+                    <TouchableOpacity
+                        style={styles.menuItem}
+                        onPress={handleLogout}
+                    >
+                        <MaterialIcons name="logout" size={16} color="#EF4444" />
+                        <Text style={[styles.menuText, { color: '#EF4444' }]}>Đăng xuất</Text>
+                    </TouchableOpacity>
                 </View>
             )}
         </View>
@@ -138,50 +179,98 @@ export default function Header() {
 
 const styles = StyleSheet.create({
     headerContainer: {
-        backgroundColor: "#F97316", // Màu cam
-        paddingVertical: 10,
+        backgroundColor: '#F97316', // Orange-500
         paddingHorizontal: 16,
-        // Thiết lập shadow cho iOS và elevation cho Android
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.3,
-        shadowRadius: 4,
+        paddingVertical: 12,
+        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
         elevation: 5,
+        position: 'relative',
+        zIndex: 50,
     },
-    topRow: {
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "space-between",
+    logoContainer: {
+        alignItems: 'center',
+        marginBottom: 12,
     },
     logo: {
-        width: 120,
-        height: 50,
+        height: 64,
+        width: 256,
+    },
+    loadingText: {
+        color: 'white',
+        fontSize: 20,
+        fontWeight: 'bold',
+    },
+    searchContainer: {
+        marginHorizontal: 0,
+        marginBottom: 8,
+    },
+    searchInputWrapper: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: 'white',
+        borderRadius: 25,
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        borderWidth: 1,
+        borderColor: '#D1D5DB',
+    },
+    searchIcon: {
+        marginRight: 8,
     },
     searchInput: {
         flex: 1,
-        marginHorizontal: 12,
+        fontSize: 14,
+        color: '#374151',
+    },
+    loadingSearchBox: {
+        height: 40,
+        backgroundColor: 'rgba(255,255,255,0.3)',
+        borderRadius: 20,
+    },
+    navContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        alignItems: 'center',
+    },
+    navButton: {
+        padding: 8,
+    },
+    loadingIcon: {
+        width: 32,
+        height: 32,
+        backgroundColor: 'rgba(255,255,255,0.2)',
+        borderRadius: 16,
+    },
+    dropdown: {
+        position: 'absolute',
+        top: '100%',
+        right: 16,
+        backgroundColor: 'white',
+        borderRadius: 8,
+        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+        elevation: 8,
+        padding: 8,
+        minWidth: 200,
+        zIndex: 100,
+    },
+    userName: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: '#374151',
         paddingHorizontal: 12,
         paddingVertical: 8,
-        backgroundColor: "#FFFFFF",
-        borderRadius: 20,
-        borderWidth: 1,
-        borderColor: "#D1D5DB",
-        fontSize: 14,
-    },
-    menuContainer: {
-        marginTop: 10,
-        backgroundColor: "#FFFFFF",
-        borderRadius: 8,
-        padding: 10,
+        borderBottomWidth: 1,
+        borderBottomColor: '#E5E7EB',
     },
     menuItem: {
-        flexDirection: "row",
-        alignItems: "center",
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 12,
         paddingVertical: 8,
     },
     menuText: {
+        fontSize: 14,
+        color: '#374151',
         marginLeft: 8,
-        fontSize: 16,
-        color: "#1F2937",
     },
 });
